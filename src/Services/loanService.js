@@ -14,11 +14,13 @@ export const getLoans = () => {
         }
     }
 }
-export const addLoan = (data) => {
+export const addLoan = (data,navigate) => {
     return async dispatch => {
         try {
             const res = await axios.post(URL, data);
             dispatch({ type: actiontype.ADD_LOAN, data: res.data });
+            alert('`add` in successfully');
+            navigate('/LoansList');
         } catch (error) {
             console.error(error);
         }
@@ -28,15 +30,15 @@ export const repaymentLoan = (id) => {
     return async dispatch => {
         try {
             const res = await axios.delete(`${URL}/${id}`);
-            console.log("editeeee")
             console.log(res.data);
             dispatch({ type: actiontype.REPAYMENT_LOAN, data: res.data });
+           
         } catch (error) {
             console.error(error);
         }
     }
 }
-export const editLoan = (data,id) => {
+export const editLoan = (data,id,navigate) => {
     alert("edit")
     console.log(data)
     return async dispatch => {
@@ -45,6 +47,8 @@ export const editLoan = (data,id) => {
             console.log("editeeee")
             console.log(res.data);
             dispatch({ type: actiontype.EDIT_LOAN, data: res.data });
+            alert('`edit` in successfully');
+            navigate('/LoansList');
         } catch (error) {
             console.error(error);
         }

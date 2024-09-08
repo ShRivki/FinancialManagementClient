@@ -11,15 +11,15 @@ const LoanDetails = ({ loan, isFromGuarantee }) => { // הוספת isFromGuarant
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        console.log('Loan:', loan);
-    }, [loan]);
+    // useEffect(() => {
+    //     console.log('Loan:', loan);
+    // }, [loan]);
 
     if (!loan) {
         return <Typography variant="h6" align="center" sx={{ mt: 4, color: '#2F4F4F' }}>Loan data is missing</Typography>;
     }
 
-    const { id, borrower, amount, loanDate, status, guarantees, currentPayment, totalPayments } = loan;
+    const { id, borrower, amount, loanDate, status, guarantees, currentPayment, totalPayments,remainingAmount } = loan;
 
     const handleEdit = () => {
         navigate('/loanAddEdit', { state: loan });
@@ -71,7 +71,8 @@ const LoanDetails = ({ loan, isFromGuarantee }) => { // הוספת isFromGuarant
                     </Grid>
                 </Grid>
                 <Divider sx={{ my: 2, borderColor: '#003366' }} />
-                {renderTextSection('סכום הלוואה:', `${amount} ש"ח`, { fontWeight: 'bold', color: '#003366' })}
+                {renderTextSection('סכום הלוואה:', ` ${amount-remainingAmount} / ${amount} ש"ח`, { fontWeight: 'bold', color: '#003366' })}
+                {renderTextSection('סכום שנותר לתשלום:', `${remainingAmount} ש"ח`, { fontWeight: 'bold', color: '#003366' })}
                 {renderTextSection('תאריך יצירת הלוואה:', loanDate ? format(new Date(loanDate), 'yyyy-MM-dd') : 'אין תאריך פרעון', { color: '#2F4F4F' })}
                 {renderTextSection('תשלומים:', `${currentPayment}/${totalPayments}`, { color: '#2F4F4F' })}
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל', { color: status ? '#003366' : '#2F4F4F' })}
@@ -81,7 +82,7 @@ const LoanDetails = ({ loan, isFromGuarantee }) => { // הוספת isFromGuarant
                 </Box>
                 {!isFromGuarantee && ( // הצגת הכפתורים רק אם לא ניגשים דרך ערבות
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                        <Button onClick={() => dispatch(repaymentLoan(id))} variant="contained" sx={{ bgcolor: '#FF8C00', '&:hover': { bgcolor: '#FF7F50' } }}> {/* Dark Orange Button */}
+                        <Button disabled={!status} onClick={() => dispatch(repaymentLoan(id))} variant="contained" sx={{ bgcolor: '#FF8C00', '&:hover': { bgcolor: '#FF7F50' } }}> {/* Dark Orange Button */}
                             החזר הלוואה
                         </Button>
                         <Button onClick={handleEdit} variant="outlined" sx={{ color: '#003366', borderColor: '#003366' }}> {/* Dark Blue Outline Button */}

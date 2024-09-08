@@ -7,7 +7,7 @@ import AddDeposit from '../Deposit/addDeposit';
 import HomeIcon from '@mui/icons-material/Home';
 import LoginIcon from '@mui/icons-material/Login';
 const ROUTES = {
-    HOME: '/HomePage',
+    HOME: '/Home',
     USER_LIST: '/UserList',
     LOG_IN: '/',
     LOG_OUT: '/LogOut',

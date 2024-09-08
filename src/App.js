@@ -13,6 +13,7 @@ import DepositsList from './Deposit/depositList.js'
 import LoansList from './Loan/loanList.js';
 import LoanAddEdit from './Loan/loanAddEdit.js'
 import GuaranteeList from './Guarantee/guaranteeList.js';
+import Home from './Home/home.js'
 // const HomePage = React.lazy(() => import('./HomePage.js'));
 // const LogIn = React.lazy(() => import('./User/LogIn.js'));
 // const LogOut = React.lazy(() => import('./User/LogOut.js'));
@@ -37,6 +38,7 @@ function App() {
     <Route path="/GuaranteeList" element={<GuaranteeList />} />
     <Route path="/LoansList" element={<LoansList />} />
     <Route path="/loanAddEdit" element={<LoanAddEdit />} />
+    <Route path="/Home" element={<Home />} />
               {/* <Route path="/" element={<React.Suspense fallback={<div>Loading...</div>}><HomePage /></React.Suspense>} />
               <Route path="/HomePage" element={<React.Suspense fallback={<div>Loading...</div>}><HomePage /></React.Suspense>} />
               <Route path="/Login" element={<React.Suspense fallback={<div>Loading...</div>}><LogIn /></React.Suspense>} />

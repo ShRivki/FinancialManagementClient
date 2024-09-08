@@ -51,7 +51,7 @@ const LoanAddEdit = () => {
     const onSubmit = (data) => {
         const frequencyDays = { '1': 1, '7': 7, '30': 30, '90': 90, '180': 180, '365': 365 };
         data.frequency = frequencyDays[data.frequency] || 0;
-        state.borrower?.id ? dispatch(editLoan(data, state.borrower.id)) : dispatch(addLoan(data));
+        state.borrower?.id ? dispatch(editLoan(data, state.borrower.id)) : dispatch(addLoan(data,navigate));
     };
 
     const renderSelectField = (label, name, options) => (

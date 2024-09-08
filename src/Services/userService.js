@@ -9,7 +9,7 @@ export const logIn = async (data,navigate) => {
     const response = await axios.post(`${URL}/LogIn`, { userName: data.UserName, password: data.Password });
     localStorage.setItem('token', response.data.token);
     alert('`Logged` in successfully');
-    navigate('/UserList');
+    navigate('/Home');
   } catch (error) {
     alert('Login error');
   }
