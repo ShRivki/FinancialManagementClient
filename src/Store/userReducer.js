@@ -14,7 +14,7 @@ const usersReducer = (state = initialState, action) => {
         }
         case actiontype.EDIT_USER: {
             const users = [...state.users];
-            const findIndex = users.findIndex(x => x.id==action.data.id);
+            const findIndex = users.findIndex(x => x.id===action.data.id);
             users[findIndex] = action.data;
             return { ...state, users }
         }

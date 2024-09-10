@@ -1,9 +1,9 @@
 import * as actiontype from './actions';
 
 const initialState = {
-    totalFundBalance: 0,
-    activeLoans: 0,
-    totalLoansGranted: 0
+    totalFundBalance: 0.0,
+    activeLoans: 0.0,
+    totalLoansGranted: 0.0
 };
 
 const globalReducer = (state = initialState, action) => {
@@ -12,6 +12,11 @@ const globalReducer = (state = initialState, action) => {
             const { totalFundBalance, activeLoans, totalLoansGranted } = action.data[0];
             return { ...state, totalFundBalance, activeLoans, totalLoansGranted };
         }
+        case actiontype.SUB_BALANCE:
+            return {
+                ...state,
+                totalFundBalance: state.totalFundBalance - action.data
+            };
         case actiontype.ADD_DEPOSIT:
             return {
                 ...state,
@@ -20,7 +25,7 @@ const globalReducer = (state = initialState, action) => {
         case actiontype.REPAYMENT_DEPOSIT:
             return {
                 ...state,
-                totalFundBalance: state.totalFundBalance - action.data.amount
+                totalFundBalance: state.totalFundBalance - action.amount
             };
         case actiontype.ADD_DONATION:
             return {

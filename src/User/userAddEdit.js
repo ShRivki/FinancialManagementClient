@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -22,13 +22,22 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
         register,
         handleSubmit,
         formState: { errors, isValid },
+        reset,
     } = useForm({
         resolver: yupResolver(schema),
         defaultValues: initialValues,
         mode: 'onChange',
     });
 
+useEffect(() => {
+  if (initialValues && Object.keys(initialValues).length > 0) {
+    reset(initialValues);
+  }
+}, [initialValues, reset]);
+
+
     const onSubmit = (data) => {
+        alert("scd")
         if (initialValues.identity) {
             dispatch(editUser(data));
         } else {

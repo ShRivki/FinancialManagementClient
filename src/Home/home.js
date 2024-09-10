@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Box, Typography, Grid, CircularProgress } from '@mui/material';
-import {getGlobalVariables}from '../Services/globalVariabelsService'
+import { Box, Typography, Grid, CircularProgress, Button, TextField } from '@mui/material';
+import { getGlobalVariables, subBalance } from '../Services/globalVariabelsService';
 import { useDispatch } from 'react-redux';
+
+const formatNumber = (number) => {
+    // עיגול ל-2 מקומות עשרוניים
+    const fixedNumber = number.toFixed(2);
+
+    // אם מספר לא כולל ערכים עשרוניים, הסר את .00
+    return fixedNumber.endsWith('.00') ? fixedNumber.slice(0, -3) : fixedNumber;
+};
 
 const Home = () => {
     const { totalFundBalance, activeLoans, totalLoansGranted } = useSelector(state => state.GlobalVariables);
@@ -10,11 +18,24 @@ const Home = () => {
     const [displayFundBalance, setDisplayFundBalance] = useState(0);
     const [displayActiveLoans, setDisplayActiveLoans] = useState(0);
     const [displayTotalLoansGranted, setDisplayTotalLoansGranted] = useState(0);
+    const [amount, setAmount] = useState('');
     const dispatch = useDispatch();
 
+    const handleSubtract = () => {
+        if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+            alert('Please enter a valid amount');
+            return;
+        }
+
+        const operatingExpenses = parseFloat(amount); // המרה למספר עשרוני
+        dispatch(subBalance(operatingExpenses)); // שלח לשרת
+        setAmount('');
+    };
+
     useEffect(() => {
-      dispatch(getGlobalVariables());
+        dispatch(getGlobalVariables());
     }, [dispatch]);
+
     useEffect(() => {
         const animateValue = (setter, value) => {
             let start = 0;
@@ -24,7 +45,7 @@ const Home = () => {
 
             const step = (timestamp) => {
                 const progress = Math.min((timestamp - startTime) / duration, 1);
-                const currentValue = Math.floor(progress * end);
+                const currentValue = Math.floor(progress * end * 100) / 100; // עיגול לשני מקומות עשרוניים
                 setter(currentValue);
 
                 if (progress < 1) {
@@ -50,7 +71,7 @@ const Home = () => {
                         {totalFundBalance === 0 ? (
                             <CircularProgress />
                         ) : (
-                            <Typography variant="h5"> ש"ח {displayFundBalance}</Typography>
+                            <Typography variant="h5"> ש"ח {formatNumber(displayFundBalance)}</Typography> // הצגה עם שני מקומות עשרוניים רק אם יש צורך
                         )}
                     </Box>
                 </Grid>
@@ -60,7 +81,7 @@ const Home = () => {
                         {activeLoans === 0 ? (
                             <CircularProgress />
                         ) : (
-                            <Typography variant="h5"> ש"ח {displayActiveLoans} </Typography>
+                            <Typography variant="h5"> ש"ח {formatNumber(displayActiveLoans)}</Typography> // הצגה עם שני מקומות עשרוניים רק אם יש צורך
                         )}
                     </Box>
                 </Grid>
@@ -70,11 +91,24 @@ const Home = () => {
                         {totalLoansGranted === 0 ? (
                             <CircularProgress />
                         ) : (
-                            <Typography variant="h5"> ש"ח {displayTotalLoansGranted}</Typography>
+                            <Typography variant="h5"> ש"ח {formatNumber(displayTotalLoansGranted)}</Typography> // הצגה עם שני מקומות עשרוניים רק אם יש צורך
                         )}
                     </Box>
                 </Grid>
             </Grid>
+            
+            <Box sx={{ mt: 4 }}>
+                <TextField
+                    label="Amount to Deduct"
+                    variant="outlined"
+                    value={amount}
+                    onChange={(event) => setAmount(event.target.value)}
+                    sx={{ mb: 2 }}
+                />
+                <Button variant="contained" color="primary" onClick={handleSubtract}>
+                    Deduct Amount
+                </Button>
+            </Box>
         </Box>
     );
 };

@@ -15,3 +15,17 @@ export const getGlobalVariables = () => {
         }
     }
 }
+export const subBalance = (operatingExpenses) => {
+  alert("a")
+  alert(operatingExpenses)
+  alert(`${URL}/${operatingExpenses}`)
+    return async dispatch => {
+        try {
+            const res = await axios.put(`${URL}/${operatingExpenses}`);
+            dispatch({ type: actiontype.SUB_BALANCE, data: operatingExpenses });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+}

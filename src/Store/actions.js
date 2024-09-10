@@ -25,3 +25,14 @@ export const GET_MONEY_LEFT="GET_MONEY_LEFT"
 export const ALL_THE_LOANS_THAT_WARE="ALL_THE_LOANS_THAT_WARE"
 
 export const GET_GLOBAL_VARIABELS="GET_GLOBAL_VARIABELS"
+export const SUB_BALANCE="SUB_BALANCE"
+export const LOADING_START = 'LOADING_START';
+export const LOADING_END = 'LOADING_END';
+
+export const startLoading = () => ({
+    type: LOADING_START
+});
+
+export const endLoading = () => ({
+    type: LOADING_END
+});

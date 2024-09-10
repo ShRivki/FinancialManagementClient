@@ -4,7 +4,7 @@ import { getDonations } from '../Services/donationService';
 import { useLocation } from 'react-router-dom';
 import DonationDetails from './donationDetails';
 import SortFilter from '../User/sortFilter';
-import { Typography, Box, Divider } from '@mui/material';
+import { Typography, Box, Divider, Grid, Paper } from '@mui/material';
 
 const DonationsList = () => {
   const { state } = useLocation();
@@ -30,11 +30,11 @@ const DonationsList = () => {
 
   // Define your sort options
   const sortOptions = [
-    { value: 'default', label: 'Default' },
-    { value: 'amountAsc', label: 'Amount (Low to High)' },
-    { value: 'amountDesc', label: 'Amount (High to Low)' },
-    { value: 'nameAsc', label: 'Name (A to Z)' },
-    { value: 'nameDesc', label: 'Name (Z to A)' }
+    { value: 'default', label: 'ברירת מחדל' },
+    { value: 'amountAsc', label: 'סכום (מנמוך לגבוה)' },
+    { value: 'amountDesc', label: 'סכום ( מגבוה לנמוך)' },
+    { value: 'nameAsc', label: 'שם (א׳ עד ת׳)' },
+    { value: 'nameDesc', label: 'שם (ת׳ עד א׳)' }
   ];
 
   const handleSortChange = (newSortOrder) => {
@@ -53,12 +53,24 @@ const DonationsList = () => {
         {(sortedItems) => (
           <>
             <Divider sx={{ mb: 2 }} />
-            {sortedItems.length === 0
-              ? <Typography variant="h6" align="center" sx={{ mt: 4 }}>No donations available</Typography>
-              : sortedItems.map((donation, index) => (
-                  <DonationDetails key={index} donation={donation} />
-                ))
-            }
+            {sortedItems.length === 0 ? (
+              <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+                אין תרומות זמינות
+              </Typography>
+            ) : (
+              <Grid container spacing={3}>
+                {sortedItems.map((donation, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={index}>
+                    <div
+                      elevation={3}
+                      sx={{ padding: 2, minHeight: '250px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: 2, boxShadow: 1 }}
+                    >
+                      <DonationDetails donation={donation} />
+                    </div>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
           </>
         )}
       </SortFilter>

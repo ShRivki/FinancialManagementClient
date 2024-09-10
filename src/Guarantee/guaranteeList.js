@@ -18,7 +18,7 @@ const GuaranteeList = () => {
   }, [state]);
 
   const guarantees = state?.guarantees || [];
-
+  const totalAmount = guarantees.reduce((sum, guarantee) => sum + (guarantee.loan.remainingAmount || 0), 0);
   // Define your sort functions
   const sortFunctions = {
     amountAsc: (a, b) => a.loan.amount - b.loan.amount,
@@ -52,6 +52,9 @@ const GuaranteeList = () => {
 
   return (
     <Box sx={{ p: 2 }}>
+         <Typography variant="h5" sx={{ mb: 2 }}>
+        סך כל הערביות שמשתמש זה ערב : {totalAmount} ש"ח
+      </Typography>
       <SortFilter
         items={guarantees}
         sortOrder={sortOrder}

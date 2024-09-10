@@ -6,11 +6,13 @@ import * as yup from "yup";
 import { useDispatch, useSelector } from 'react-redux';
 import { addDonation } from '../Services/donationService';
 import UserAddEdit from '../User/userAddEdit'; // ייבוא רכיב הוספת משתמש
-
+import { currencyOptions ,fundraiserOptions} from '../constants.js'
 const schema = yup.object({
-    donorId: yup.number().required('Donor is required').min(1, 'Donor ID must be a positive number'),
-    amount: yup.number().required('Amount is required').min(0, 'Amount must be a non-negative number'),
-    notes: yup.string().notRequired().max(255, 'Notes cannot exceed 255 characters'),
+    donorId: yup.number().required('תורם נדרש').min(1, 'מזהה תורם חייב להיות מספר חיובי'),
+    amount: yup.number().required('סכום נדרש').positive('הסכום חייב להיות חיובי').typeError('הסכום חייב להיות מספר'),
+    currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2], 'מטבע לא חוקי'),
+    fundraiser: yup.number().required('קמפיין נדרש').oneOf([0, 1, 2, 3], 'קמפיין לא חוקי').default(3),
+    notes: yup.string().notRequired().max(255, 'הערות לא יכולות לעלות על 255 תווים'),
 }).required();
 
 const AddDonation = ({ open, handleClose, initialValues = {} }) => {
@@ -24,12 +26,19 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
     });
 
     const [selectedDonor, setSelectedDonor] = useState(initialValues.donorId || "");
+    const [selectedCurrency, setSelectedCurrency] = useState(initialValues.currency || "");
+    const [selectedFundraiser, setSelectedFundraiser] = useState(initialValues.fundraiser || "");
 
     useEffect(() => {
         setValue("donorId", selectedDonor);
-    }, [selectedDonor, setValue]);
+        setValue("currency", selectedCurrency);
+        setValue("fundraiser", selectedFundraiser);
+    }, [selectedDonor, selectedCurrency, selectedFundraiser, setValue]);
 
     const onSubmit = (data) => {
+        // כאן נוודא ש-currency הוא מספר ולא מחרוזת
+        data.currency = parseInt(data.currency, 10);
+        data.fundraiser = parseInt(data.fundraiser, 10);
         dispatch(addDonation(data));
         handleClose();
     };
@@ -45,7 +54,7 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
     return (
         <div>
             <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>addDonation</DialogTitle>
+                <DialogTitle>הוספת תרומה</DialogTitle>
                 <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 600, margin: '0 auto' }}>
                     <DialogContent>
                         <Autocomplete
@@ -55,21 +64,51 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
                                 setSelectedDonor(newValue?.id || "");
                             }}
                             renderInput={(params) => (
-                                <TextField {...params} label="תורם"  variant="outlined" fullWidth error={!!errors.donorId}  helperText={errors.donorId?.message} sx={{ mb: 2 }}/>
+                                <TextField {...params} label="תורם" variant="outlined" fullWidth error={!!errors.donorId} helperText={errors.donorId?.message} sx={{ mb: 2 }} />
                             )}
                             value={users.find(user => user.id === selectedDonor)}
                         />
                         <Button onClick={handleOpenDonationDialog} variant="text" sx={{ mb: 2 }}>
-                            הוספת משתמש חדש
+                            הוסף משתמש חדש
                         </Button>
-                        <TextField label="סכום תרומה" variant="outlined" fullWidth {...register("amount")} sx={{ mb: 2 }}/>
-                        <p>{errors.amount?.message}</p>
-                        <TextField label="הערות" variant="outlined" fullWidth {...register("notes")} sx={{ mb: 2 }}/>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                            <TextField label="סכום תרומה" variant="outlined" fullWidth type="number" {...register("amount")}
+                                error={!!errors.amount}
+                                helperText={errors.amount?.message}
+                                InputProps={{ inputProps: { min: 0 } }} // מגביל למספרים חיוביים
+                                sx={{ flexGrow: 1 }} // תופס מקום מלא
+                            />
+                            <Autocomplete
+                                options={currencyOptions}
+                                getOptionLabel={(option) => option.label}
+                                onChange={(event, newValue) => {
+                                    setSelectedCurrency(newValue?.value || 0);
+                                }}
+                                renderInput={(params) => (
+                                    <TextField {...params} label="מטבע" variant="outlined" error={!!errors.currency} helperText={errors.currency?.message} />
+                                )}
+                                value={currencyOptions.find(option => option.value === selectedCurrency)}
+                                sx={{ width: 120 }} // רוחב צר
+                            />
+                        </div>
+                        <br/>
+                        <Autocomplete
+                            options={fundraiserOptions}
+                            getOptionLabel={(option) => option.label}
+                            onChange={(event, newValue) => {
+                                setSelectedFundraiser(newValue?.value || "");
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} label="מתרים" variant="outlined" fullWidth error={!!errors.fundraiser} helperText={errors.fundraiser?.message} sx={{ mb: 2 }} />
+                            )}
+                            value={fundraiserOptions.find(option => option.value === selectedFundraiser)}
+                        />
+                        <TextField label="הערות" variant="outlined" fullWidth {...register("notes")} sx={{ mb: 2 }} />
                         <p>{errors.notes?.message}</p>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="secondary">
-                            Cancel
+                            ביטול
                         </Button>
                         <Button type="submit" variant="contained" color="primary" disabled={!isValid}>
                             הוספת תרומה

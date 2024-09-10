@@ -1,28 +1,32 @@
-import React, { useEffect } from 'react';
-import { Box, Card, CardContent, Typography, Divider, Button, Grid, Avatar } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Card, CardContent, Typography, Divider, Button, Grid, Avatar, TextField } from '@mui/material';
 import { grey, blue, orange } from '@mui/material/colors';
 import { format } from 'date-fns';
 import { repaymentLoan } from '../Services/loanService';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-
-const LoanDetails = ({ loan, isFromGuarantee }) => { // הוספת isFromGuarantee כפרופס
+import { currencyOptionsValue } from '../constants.js'
+const LoanDetails = ({ loan, isFromGuarantee }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
-    // useEffect(() => {
-    //     console.log('Loan:', loan);
-    // }, [loan]);
+    const [repaymentAmount, setRepaymentAmount] = useState('');
 
     if (!loan) {
         return <Typography variant="h6" align="center" sx={{ mt: 4, color: '#2F4F4F' }}>Loan data is missing</Typography>;
     }
 
-    const { id, borrower, amount, loanDate, status, guarantees, currentPayment, totalPayments,remainingAmount } = loan;
+    const { id, borrower, amount, loanDate, status, guarantees, currentPayment, totalPayments, remainingAmount, monthlyRepayment ,currency} = loan;
 
     const handleEdit = () => {
         navigate('/loanAddEdit', { state: loan });
+    };
+
+    const handleRepayment = () => {
+        // Send repayment amount or default to monthlyRepayment
+        const amountToRepay = repaymentAmount ? parseFloat(repaymentAmount) : monthlyRepayment;
+        dispatch(repaymentLoan(id, amountToRepay));
+        setRepaymentAmount(''); // Clear the input field after submission
     };
 
     // Helper function for rendering text sections
@@ -61,7 +65,8 @@ const LoanDetails = ({ loan, isFromGuarantee }) => { // הוספת isFromGuarant
                 <Grid container spacing={2} alignItems="center">
                     <Grid item>
                         <Avatar sx={{ bgcolor: '#003366' }}> {/* Dark Blue */}
-                            <AccountBalanceIcon />
+                            {/* <AccountBalanceIcon /> */}
+                            {id}
                         </Avatar>
                     </Grid>
                     <Grid item xs>
@@ -71,8 +76,8 @@ const LoanDetails = ({ loan, isFromGuarantee }) => { // הוספת isFromGuarant
                     </Grid>
                 </Grid>
                 <Divider sx={{ my: 2, borderColor: '#003366' }} />
-                {renderTextSection('סכום הלוואה:', ` ${amount-remainingAmount} / ${amount} ש"ח`, { fontWeight: 'bold', color: '#003366' })}
-                {renderTextSection('סכום שנותר לתשלום:', `${remainingAmount} ש"ח`, { fontWeight: 'bold', color: '#003366' })}
+                {renderTextSection('סכום הלוואה:', ` ${amount-remainingAmount} / ${amount}  ${currencyOptionsValue[currency]}`, { fontWeight: 'bold', color: '#003366' })}
+                {renderTextSection('סכום שנותר לתשלום:', `${remainingAmount} ${currencyOptionsValue[currency]}`, { fontWeight: 'bold', color: '#003366' })}
                 {renderTextSection('תאריך יצירת הלוואה:', loanDate ? format(new Date(loanDate), 'yyyy-MM-dd') : 'אין תאריך פרעון', { color: '#2F4F4F' })}
                 {renderTextSection('תשלומים:', `${currentPayment}/${totalPayments}`, { color: '#2F4F4F' })}
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל', { color: status ? '#003366' : '#2F4F4F' })}
@@ -81,13 +86,24 @@ const LoanDetails = ({ loan, isFromGuarantee }) => { // הוספת isFromGuarant
                     {renderGuarantees(guarantees)}
                 </Box>
                 {!isFromGuarantee && ( // הצגת הכפתורים רק אם לא ניגשים דרך ערבות
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                        <Button disabled={!status} onClick={() => dispatch(repaymentLoan(id))} variant="contained" sx={{ bgcolor: '#FF8C00', '&:hover': { bgcolor: '#FF7F50' } }}> {/* Dark Orange Button */}
-                            החזר הלוואה
-                        </Button>
-                        <Button onClick={handleEdit} variant="outlined" sx={{ color: '#003366', borderColor: '#003366' }}> {/* Dark Blue Outline Button */}
-                            ערוך הלוואה
-                        </Button>
+                    <Box sx={{ mb: 2 }}>
+                        <TextField
+                            label={`להחזרה סכום ${currencyOptionsValue[currency]}`}
+                            type="number"
+                            value={repaymentAmount}
+                            onChange={(e) => setRepaymentAmount(e.target.value)}
+                            variant="outlined"
+                            fullWidth
+                            sx={{ maxWidth: 200 }}
+                        />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                            <Button disabled={!status} onClick={handleRepayment} variant="contained" sx={{ bgcolor: '#FF8C00', '&:hover': { bgcolor: '#FF7F50' } }}> {/* Dark Orange Button */}
+                                החזר תשלום
+                            </Button>
+                            <Button onClick={handleEdit} variant="outlined" sx={{ color: '#003366', borderColor: '#003366' }}> {/* Dark Blue Outline Button */}
+                                ערוך הלוואה
+                            </Button>
+                        </Box>
                     </Box>
                 )}
             </CardContent>

@@ -58,14 +58,14 @@ const UserList = () => {
   };
 
   const filteredUsers = users.filter(user =>
-    [user.firstName, user.lastName, user.email, user.address].some(field =>
+    [user.firstName, user.lastName, user.email, user.address,user.identity].some(field =>
       (field || '').toLowerCase().includes(searchTerm.toLowerCase())
     )
     ,console.log(users)
   );
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredUsers.length) : 0;
   return (
-    <Box sx={{ marginTop: 4, width: '80%', mx: 'auto' }}>
+    <Box sx={{ marginTop: 4, width: '85%', mx: 'auto' }}>
       <Box sx={{ mb: 2, width: '15%' }}>
         <TextField label="חיפוש לפי שם, מייל או כתובת" variant="outlined" fullWidth onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm}
         />

@@ -28,20 +28,25 @@ const LoansList = () => {
     amountDesc: (a, b) => b.amount - a.amount,
     dateAsc: (a, b) => new Date(a.loanDate) - new Date(b.loanDate),
     dateDesc: (a, b) => new Date(b.loanDate) - new Date(a.loanDate),
+    repaymentDateAsc: (a, b) => new Date(a.repaymentDate) - new Date(b.repaymentDate),
+    repaymentDateDesc: (a, b) => new Date(b.repaymentDate) - new Date(a.repaymentDate),
     nameAsc: (a, b) => a.borrower.firstName.localeCompare(b.borrower.firstName),
     nameDesc: (a, b) => b.borrower.firstName.localeCompare(a.borrower.firstName),
   };
 
   // Define your sort options
   const sortOptions = [
-    { value: 'default', label: 'Default' },
-    { value: 'amountAsc', label: 'Amount (Low to High)' },
-    { value: 'amountDesc', label: 'Amount (High to Low)' },
-    { value: 'dateAsc', label: 'Date (Oldest to Newest)' },
-    { value: 'dateDesc', label: 'Date (Newest to Oldest)' },
-    { value: 'nameAsc', label: 'Name (A to Z)' },
-    { value: 'nameDesc', label: 'Name (Z to A)' },
-  ];
+    { value: 'default', label: 'ברירת מחדל' },
+    { value: 'amountAsc', label: 'סכום (מנמוך לגבוה)' },
+    { value: 'amountDesc', label: 'סכום ( מגבוה לנמוך)' },
+    { value: 'dateAsc', label: 'תאריך (הישן לחדש)' },
+    { value: 'dateDesc', label: 'תאריך (החדש לישן)' },
+    { value: 'nameAsc', label: 'שם (א–ת)' },
+    { value: 'nameDesc', label: 'שם (ת–א)' },
+    { value: 'repaymentDateAsc', label: 'תאריך פרעון (הקדום המאוחר)' },
+    { value: 'repaymentDateDesc', label: 'תאריך פרעון (המאוחר להקדום)' },
+];
+
 
   const handleSortChange = (newSortOrder) => {
     setSortOrder(newSortOrder);
