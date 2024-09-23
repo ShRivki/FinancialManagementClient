@@ -11,7 +11,7 @@ export const getLoans = () => {
             dispatch({ type: actiontype.GET_LOANS, data: res.data });
         } catch (error) {
             console.error(error);
-        } 
+        }
         // finally {
         //     dispatch(actiontype.endLoading()); // סיום מצב טעינה
         // }
@@ -21,8 +21,9 @@ export const getLoans = () => {
 export const addLoan = (data, navigate) => {
     return async dispatch => {
         try {
+            console.log(data)
             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
-            const res = await axios.post(URL, data);
+            const res = await axios.post(URL, { ...data });
             dispatch({ type: actiontype.ADD_LOAN, data: res.data });
             alert('הוספה בוצעה בהצלחה');
             navigate('/LoansList');
@@ -38,7 +39,7 @@ export const repaymentLoan = (id, repaymentAmount) => {
     return async dispatch => {
         try {
             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
-            const url = repaymentAmount 
+            const url = repaymentAmount
                 ? `${URL}/${id}?repaymentAmount=${repaymentAmount}`
                 : `${URL}/${id}`;
 

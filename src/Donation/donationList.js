@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import DonationDetails from './donationDetails';
 import SortFilter from '../User/sortFilter';
 import { Typography, Box, Divider, Grid, Paper } from '@mui/material';
-
+import ExportButton from '../exportButton';
 const DonationsList = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
@@ -52,6 +52,18 @@ const DonationsList = () => {
       >
         {(sortedItems) => (
           <>
+          <ExportButton
+              data={sortedItems.map(donation => ({
+                'Name': donation.donor.firstName + ' ' + donation.donor.lastName,
+                'ID': donation.donor.identity,
+                'Amount': donation.amount,
+                'Currency': donation.currency, // הוספת משתנה מטבע
+                'Fundraiser Type': donation.fundraiserType || 'N/A', // הצגת סוג המגייס במקום התאריך
+                'Notes': donation.notes,
+                'Status': donation.status ? 'Active' : 'Inactive',
+              }))}
+              fileName={`DonationsList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
+              />
             <Divider sx={{ mb: 2 }} />
             {sortedItems.length === 0 ? (
               <Typography variant="h6" align="center" sx={{ mt: 4 }}>

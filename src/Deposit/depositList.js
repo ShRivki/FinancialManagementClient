@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import DepositDetails from './depositDetails';
 import SortFilter from '../User/sortFilter'; // Import the SortFilter component
 import { Typography, Box, Divider } from '@mui/material';
-
+import ExportButton from '../exportButton';
 const DepositsList = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
@@ -52,6 +52,7 @@ const DepositsList = () => {
 
   return (
     <Box sx={{ p: 2 }}>
+      
       <SortFilter
         items={deposits}
         sortOrder={'default'}
@@ -61,6 +62,18 @@ const DepositsList = () => {
       >
         {(sortedDeposits) => (
           <>
+          <ExportButton
+              data={sortedDeposits.map(donation => ({
+                'Name': donation.depositor.firstName + ' ' + donation.depositor.lastName,
+                'ID': donation.depositor.identity,
+                'Amount': donation.amount,
+                'Currency': donation.currency, // הוספת משתנה מטבע
+                'Fundraiser Type': donation.fundraiserType || 'N/A', // הצגת סוג המגייס במקום התאריך
+                'Notes': donation.notes,
+                'Status': donation.status ? 'Active' : 'Inactive',
+              }))}
+              fileName={`DonationsList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
+              />
             <Divider sx={{ mb: 2 }} />
             {sortedDeposits.map((deposit, index) => (
               <DepositDetails key={index} deposit={deposit} />

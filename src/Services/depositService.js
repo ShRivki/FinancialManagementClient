@@ -24,7 +24,9 @@ export const addDeposit = (data) => {
         try {
             console.log({ ...data, depositDate: new Date().toISOString() });
             const res = await axios.post(URL, { ...data, depositDate: new Date().toISOString() });
-            dispatch({ type: actiontype.ADD_DEPOSIT, data: res.data });
+            alert(res.data.currency)
+            console.log(res.data)
+            dispatch({ type: actiontype.ADD_DEPOSIT, data: res.data});
             alert(`ההפקדה נוספה בהצלחה`);
         } catch (error) {
             console.error(error);
@@ -39,7 +41,7 @@ export const repaymentDeposit = (id, repaymentAmount) => {
         dispatch({ type: actiontype.LOADING_START }); // התחלת טעינה
         try {
             const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}`);
-            dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data });
+            dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data});
             alert(`הוחזר ${repaymentAmount} בהצלחה`);
         } catch (error) {
             console.error(error);

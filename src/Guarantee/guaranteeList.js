@@ -53,7 +53,7 @@ const GuaranteeList = () => {
   return (
     <Box sx={{ p: 2 }}>
          <Typography variant="h5" sx={{ mb: 2 }}>
-        סך כל הערביות שמשתמש זה ערב : {totalAmount} ש"ח
+        סך כל הערביות שמשתמש זה ערב : {totalAmount} להכפיל סכומים במטח
       </Typography>
       <SortFilter
         items={guarantees}

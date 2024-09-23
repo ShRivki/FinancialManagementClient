@@ -10,7 +10,7 @@ import { currencyOptions ,fundraiserOptions} from '../constants.js'
 const schema = yup.object({
     donorId: yup.number().required('תורם נדרש').min(1, 'מזהה תורם חייב להיות מספר חיובי'),
     amount: yup.number().required('סכום נדרש').positive('הסכום חייב להיות חיובי').typeError('הסכום חייב להיות מספר'),
-    currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2], 'מטבע לא חוקי'),
+    currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2,3], 'מטבע לא חוקי'),
     fundraiser: yup.number().required('קמפיין נדרש').oneOf([0, 1, 2, 3], 'קמפיין לא חוקי').default(3),
     notes: yup.string().notRequired().max(255, 'הערות לא יכולות לעלות על 255 תווים'),
 }).required();

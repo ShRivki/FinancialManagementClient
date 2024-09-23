@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import LoanDetails from './LoanDetails';
 import SortFilter from '../User/sortFilter';  // שים לב לשם הנכון של הקומפוננטה
 import { Typography, Box, Divider } from '@mui/material';
+import ExportButton from '../exportButton';
 
 const LoansList = () => {
   const { state } = useLocation();
@@ -19,9 +20,13 @@ const LoansList = () => {
   }, [dispatch, state]);
 
   const loans = state?.loans || allLoans;
-
-  console.log(loans); // בדוק את התוכן של loans
-
+  const formatDate = (date) => {
+    // ודא שהתאריך הוא אובייקט מסוג Date
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toLocaleDateString('he-IL'); // פורמט תאריך בעברית
+  }
   // Define your sort functions
   const sortFunctions = {
     amountAsc: (a, b) => a.amount - b.amount,
@@ -61,8 +66,27 @@ const LoansList = () => {
         sortFunctions={sortFunctions}
         sortOptions={sortOptions}
       >
+       
         {(sortedItems) => (
           <>
+           <ExportButton
+            data={loans.map(loan => ({
+              'Loan ID': loan.id,
+              'Borrower First Name': loan.borrower.firstName,
+              'Borrower Last Name': loan.borrower.lastName,
+              'Borrower ID': loan.borrower.identity,
+              'Loan Date': formatDate(loan.loanDate),
+              'Repayment Date': formatDate(loan.repaymentDate),
+              'Frequency': loan.frequency,
+              'Monthly Payment': loan.monthlyPayMent,
+              'Total Payments': loan.totalPayments,
+              'Current Payment': loan.currentPayment,
+              'Remaining Amount': loan.remainingAmount,
+              'Status': loan.status ? 'Active' : 'Inactive',
+              'Amount': loan.amount,
+            }))}
+            fileName={`LoansList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
+          />
             <Divider sx={{ mb: 2 }} />
             {sortedItems.length === 0
               ? <Typography variant="h6" align="center" sx={{ mt: 4 }}>No Loans available</Typography>

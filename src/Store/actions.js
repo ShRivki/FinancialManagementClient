@@ -29,6 +29,11 @@ export const SUB_BALANCE="SUB_BALANCE"
 export const LOADING_START = 'LOADING_START';
 export const LOADING_END = 'LOADING_END';
 
+export const SET_CURRENCY_RATES = 'SET_CURRENCY_RATES';
+export const setCurrencyRates = (rates) => ({
+    type: SET_CURRENCY_RATES,
+    payload: rates
+});
 export const startLoading = () => ({
     type: LOADING_START
 });

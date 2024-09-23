@@ -4,9 +4,17 @@ import { grey } from '@mui/material/colors';
 import { format } from 'date-fns';
 import { repaymentDeposit } from '../Services/depositService';
 import { useDispatch } from 'react-redux';
-import { currencyOptionsValue } from '../constants.js'
+import { currencyOptionsValue } from '../constants.js';
+import { paymentMethodsOptionsValue } from '../constants.js'
+// const paymentMethodsOptions = {
+//     1: 'צ\'ק',
+//     2: 'מזומן',
+//     4: 'העברה',
+// };
+
+
 const DepositDetails = ({ deposit }) => {
-    const { id, depositor, amount, notes, dateOfMaturity, status, amountRefunded,currency} = deposit;
+    const { id, depositor, amount, notes, dateOfMaturity, status, amountRefunded, currency, paymentMethods } = deposit;
     const dispatch = useDispatch();
     const [repaymentAmount, setRepaymentAmount] = useState('');
 
@@ -23,6 +31,14 @@ const DepositDetails = ({ deposit }) => {
         const amountToRepay = repaymentAmount ? parseFloat(repaymentAmount) : amount - amountRefunded;
         dispatch(repaymentDeposit(id, amountToRepay));
         setRepaymentAmount(''); // איפוס שדה הקלט לאחר שליחה
+    };
+
+    // פונקציה למיפוי של הערכים המרובים של שיטת התשלום
+    const getPaymentMethodsDisplay = (methodsValue) => {
+        const selectedMethods = Object.keys(paymentMethodsOptionsValue)
+            .filter(key => (methodsValue & key) !== 0)
+            .map(key => paymentMethodsOptionsValue[key]);
+        return selectedMethods.length > 0 ? selectedMethods.join(', ') : 'אין מידע';
     };
 
     return (
@@ -45,6 +61,7 @@ const DepositDetails = ({ deposit }) => {
                 {renderTextSection('הערות:', notes)}
                 {renderTextSection('תאריך פרעון:', dateOfMaturity ? format(new Date(dateOfMaturity), 'yyyy-MM-dd') : 'אין תאריך פרעון')}
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל')}
+                {renderTextSection('שיטות תשלום:', getPaymentMethodsDisplay(paymentMethods))}
                 <Box sx={{ mt: 2 }}>
                     <TextField label="סכום להחזרה" type="number" value={repaymentAmount} onChange={(e) => setRepaymentAmount(e.target.value)} variant="outlined" fullWidth sx={{ maxWidth: 200 }} disabled={!status} />
                     <Button onClick={handleRepayment} variant="contained" sx={{ mt: 2, bgcolor: '#FF8C00', '&:hover': { bgcolor: '#FF7F50' } }} disabled={!status}>

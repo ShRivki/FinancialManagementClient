@@ -7,7 +7,7 @@ import { FirstPage as FirstPageIcon, LastPage as LastPageIcon, KeyboardArrowLeft
 import PropTypes from 'prop-types';
 import { getUsers } from '../Services/userService';
 import UserDetails from './userDetails';
-
+import ExportButton from '../exportButton';
 const TablePaginationActions = ({ count, page, rowsPerPage, onPageChange }) => {
   const theme = useTheme();
   const handlePageChange = (event, newPage) => onPageChange(event, newPage);
@@ -61,7 +61,6 @@ const UserList = () => {
     [user.firstName, user.lastName, user.email, user.address,user.identity].some(field =>
       (field || '').toLowerCase().includes(searchTerm.toLowerCase())
     )
-    ,console.log(users)
   );
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredUsers.length) : 0;
   return (
@@ -70,6 +69,20 @@ const UserList = () => {
         <TextField label="חיפוש לפי שם, מייל או כתובת" variant="outlined" fullWidth onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm}
         />
       </Box>
+      <Box sx={{ mb: 2, textAlign: 'right' }}>
+      <ExportButton
+        data={users.map(user => ({
+          'ID': user.identity,
+          'First Name': user.firstName,
+          'Last Name': user.lastName,
+          'Address': user.address,
+          'Phone': user.phone,
+          'Secondary Phone': user.phone2 || 'N/A',
+          'Email': user.email,
+        }))}
+        fileName={`UsersList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
+      />
+    </Box>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
           <TableBody>
