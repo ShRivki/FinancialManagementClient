@@ -1,4 +1,5 @@
 
+import { date } from 'yup';
 import * as actiontype from '../Store/actions'
 import axios from "axios";
 
@@ -59,6 +60,7 @@ export const addUser = (data) => {
   }
 }
 export const editUser = (data) => {
+  console.log(data);
   return async dispatch => {
     try {
       dispatch(actiontype.startLoading());

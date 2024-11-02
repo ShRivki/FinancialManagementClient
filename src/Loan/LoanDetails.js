@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Card, CardContent, Typography, Divider, Button, Grid, Avatar, TextField } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { format } from 'date-fns';
-import { repaymentLoan } from '../Services/loanService';
+import { repaymentLoan } from '../Services/loanService.js';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -17,16 +17,21 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
         return <Typography variant="h6" align="center" sx={{ mt: 4, color: '#2F4F4F' }}>Loan data is missing</Typography>;
     }
 
-    const { id, borrower, amount, loanDate, status, guarantees, currentPayment, totalPayments, remainingAmount, monthlyRepayment, currency, paymentMethods } = loan;
+    const { id, borrower, amount, loanDate, status, guarantees, currentPayment, totalPayments, remainingAmount, monthlyRepayment, currency, paymentMethods, depositGuarantee } = loan;
 
     const handleEdit = () => {
         navigate('/loanAddEdit', { state: loan });
     };
 
     const handleRepayment = () => {
-        const amountToRepay = repaymentAmount ? parseFloat(repaymentAmount) : monthlyRepayment;
-        dispatch(repaymentLoan(id, amountToRepay));
-        setRepaymentAmount(''); // Clear input field after submission
+        if (repaymentAmount>0&&repaymentAmount <= loan.remainingAmount) {
+            const amountToRepay = repaymentAmount ? parseFloat(repaymentAmount) : monthlyRepayment;
+            dispatch(repaymentLoan(id, amountToRepay));
+            setRepaymentAmount(''); // Clear input field after submission
+        }
+        else {
+            alert('סכום שגוי:(')
+        }
     };
 
     const renderTextSection = (title, value, valueStyle = {}) => (
@@ -34,18 +39,6 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
             <Typography variant="subtitle1" color="#2F4F4F">{title}</Typography>
             <Typography variant="body2" sx={valueStyle}>{value || 'אין מידע'}</Typography>
         </Box>
-    );
-
-    const renderGuarantees = (guarantees) => (
-        guarantees.length > 0 ? (
-            guarantees.map((guarantee, index) => (
-                <Typography key={index} variant="body2" sx={{ color: '#2F4F4F' }}>
-                    מזהה ערב: {guarantee.guarantor.firstName} {guarantee.guarantor.lastName}
-                </Typography>
-            ))
-        ) : (
-            <Typography variant="body2" sx={{ color: '#2F4F4F' }}>אין ערבים</Typography>
-        )
     );
 
     // Function to get payment methods display
@@ -77,25 +70,54 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל', { color: status ? '#003366' : '#2F4F4F' })}
                 {renderTextSection('שיטות תשלום:', getPaymentMethodsDisplay(paymentMethods), { color: '#2F4F4F' })}
                 <Box sx={{ mb: 2 }}>
-                    <TextField
-                        label={`להחזרה סכום ${currencyOptionsValue[currency]}`}
-                        type="number"
-                        value={repaymentAmount}
-                        onChange={(e) => setRepaymentAmount(e.target.value)}
-                        variant="outlined"
-                        fullWidth
-                        sx={{ maxWidth: 200 }}
-                        disabled={!status}
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                        <Button disabled={!status} onClick={handleRepayment} variant="contained" sx={{ bgcolor: '#FF8C00', '&:hover': { bgcolor: '#FF7F50' } }}>
-                            החזר תשלום
-                        </Button>
-                        <Button onClick={handleEdit} variant="outlined" sx={{ color: '#003366', borderColor: '#003366' }}>
-                            ערוך הלוואה
-                        </Button>
-                    </Box>
+                    <Typography variant="subtitle1" color="#2F4F4F">ערבים:</Typography>
+                    {guarantees && guarantees.length > 0 ? (
+                        guarantees.map((guarantee, index) => (
+                            <Typography key={index} variant="body2" sx={{ color: '#2F4F4F' }}>
+                                {guarantee.guarantor.firstName} {guarantee.guarantor.lastName} - ת.ז: {guarantee.guarantor.identity}
+                            </Typography>
+                        ))
+                    ) : (
+                        <Typography variant="body2" sx={{ color: '#2F4F4F' }}>אין ערבים</Typography>
+                    )}
                 </Box>
+                {/* הפקדות */}
+                <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle1" color="#2F4F4F">הפקדות:</Typography>
+                    {depositGuarantee && depositGuarantee.length > 0 ? (
+                        depositGuarantee.map((deposit, index) => (
+                            <Typography key={index} variant="body2" sx={{ color: '#2F4F4F' }}>
+                                מפקיד: {deposit.deposit.depositor.firstName} {deposit.deposit.depositor.lastName} - מזהה הפקדה: {deposit.deposit.id}
+                            </Typography>
+                        ))
+                    ) : (
+                        <Typography variant="body2" sx={{ color: '#2F4F4F' }}>אין הפקדות</Typography>
+                    )}
+                </Box>
+                {!isFromGuarantee && (
+                    <Box sx={{ mb: 2 }}>
+                        <TextField
+                            label={`להחזרה סכום ${currencyOptionsValue[currency]}`}
+                            type="number"
+                            value={repaymentAmount}
+                            onChange={(e) => setRepaymentAmount(e.target.value)}
+                            variant="outlined"
+                            fullWidth
+                            sx={{ maxWidth: 200 }}
+                            disabled={!status}
+                        />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                            <Button disabled={!status} onClick={handleRepayment} variant="contained" sx={{ bgcolor: '#FF8C00', '&:hover': { bgcolor: '#FF7F50' } }}>
+                                החזר תשלום
+                            </Button>
+                            <Button onClick={handleEdit} variant="outlined" sx={{ color: '#003366', borderColor: '#003366' }}>
+                                ערוך הלוואה
+                            </Button>
+                        </Box>
+                    </Box>
+                )}
+
+
             </CardContent>
         </Card>
     );

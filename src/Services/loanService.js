@@ -9,6 +9,7 @@ export const getLoans = () => {
             //dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.get(URL);
             dispatch({ type: actiontype.GET_LOANS, data: res.data });
+            console.log(res.data)
         } catch (error) {
             console.error(error);
         }
@@ -17,6 +18,15 @@ export const getLoans = () => {
         // }
     }
 }
+export const getLoansByDate = async (untilDate) => {
+    try {
+        const response = await axios.get(`${URL}/upToDate/${untilDate}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching loans by date:', error);
+        throw error;
+    }
+};
 
 export const addLoan = (data, navigate) => {
     return async dispatch => {

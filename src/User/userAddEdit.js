@@ -4,7 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { addUser, editUser } from "../Services/userService";
 import { useDispatch } from 'react-redux';
-import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Checkbox, FormControlLabel } from '@mui/material'; // ייבוא של FormControlLabel ו־Checkbox
 
 const schema = yup.object({
     identity: yup.string().required('Required field').matches(/^\d{9}$/, 'תעודת הזהות חייבת להכיל 9 ספרות בדיוק'),
@@ -14,6 +14,7 @@ const schema = yup.object({
     phone: yup.string().required('Required field').matches(/^\d{9,10}$/, 'מספר הטלפון חייב להכיל 9 או 10 ספרות בדיוק'),
     phone2: yup.string().nullable().test('is-valid-phone', 'מספר הטלפון חייב להכיל 9 או 10 ספרות בדיוק', value => !value || /^\d{9,10}$/.test(value)),
     email: yup.string().required('Required field').email('אימייל חייב להיות תקני'),
+    isReliable: yup.boolean() // שדה אמינות המשתמש
 }).required();
 
 const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
@@ -23,21 +24,21 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
         handleSubmit,
         formState: { errors, isValid },
         reset,
+        setValue,
     } = useForm({
         resolver: yupResolver(schema),
-        defaultValues: initialValues,
+        defaultValues: { ...initialValues, isReliable: initialValues.isReliable || false },
         mode: 'onChange',
     });
 
-useEffect(() => {
-  if (initialValues && Object.keys(initialValues).length > 0) {
-    reset(initialValues);
-  }
-}, [initialValues, reset]);
+    useEffect(() => {
+        if (initialValues && Object.keys(initialValues).length > 0) {
+            reset({ ...initialValues, isReliable: initialValues.isReliable || false });
+        }
+    }, [initialValues, reset]);
 
 
     const onSubmit = (data) => {
-        alert("scd")
         if (initialValues.identity) {
             dispatch(editUser(data));
         } else {
@@ -65,6 +66,15 @@ useEffect(() => {
                     <p>{errors.phone?.message}</p>
                     <TextField label="פלאפון 2" variant="outlined" fullWidth {...register("phone2")} sx={{ mb: 2 }} />
                     <p>{errors.phone2?.message}</p>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                {...register("isReliable")}
+                                defaultChecked={initialValues.isReliable} // הגדרת מצב הצ'קבוקס
+                            />
+                        }
+                        label="האם המשתמש אמין"
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="secondary">

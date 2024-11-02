@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
@@ -11,7 +11,6 @@ import Tooltip from '@mui/material/Tooltip';
 const UserDetails = ({ user, highlightText }) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-
   const handleEditClick = () => {
     setOpen(true);
   };

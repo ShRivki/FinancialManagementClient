@@ -29,7 +29,10 @@ const DepositDetails = ({ deposit }) => {
 
     const handleRepayment = () => {
         const amountToRepay = repaymentAmount ? parseFloat(repaymentAmount) : amount - amountRefunded;
-        dispatch(repaymentDeposit(id, amountToRepay));
+        if (amountToRepay>0&& amountToRepay <= (amount-amountRefunded))
+            dispatch(repaymentDeposit(id, amountToRepay));
+        else
+            alert("סכום שגוי")
         setRepaymentAmount(''); // איפוס שדה הקלט לאחר שליחה
     };
 

@@ -3,17 +3,17 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch, useSelector } from 'react-redux';
-import { TextField, Button, MenuItem, Select, InputLabel, FormControl, Box, Dialog, DialogActions, Tooltip ,Checkbox, ListItemText} from '@mui/material';
+import { TextField, Button, MenuItem, Select, InputLabel, FormControl, Box, Dialog, DialogActions, Tooltip, Checkbox, ListItemText } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { addLoan, editLoan } from "../Services/loanService";
 import UserAddEdit from '../User/userAddEdit';
 import WarningIcon from '@mui/icons-material/Warning';
 import { currencyOptions } from '../constants.js'
-import {paymentMethodsOptions}from '../constants.js'
+import { paymentMethodsOptions } from '../constants.js'
 const schema = yup.object({
     borrowerId: yup.number().required().min(1),
     amount: yup.number().required().min(1),
-    currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2,3], 'מטבע לא חוקי'),
+    currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2, 3], 'מטבע לא חוקי'),
     paymentMethods: yup.array().of(yup.number()).min(1, 'חייב לבחור לפחות שיטת תשלום אחת'),
     guarantees: yup.array().of(yup.object({ guarantorId: yup.number().required().min(1) })),
     depositGuarantee: yup.array().of(yup.object({ depositId: yup.number().required().min(1) })),
@@ -32,17 +32,21 @@ const LoanAddEdit = () => {
     const [userDialogOpen, setUserDialogOpen] = useState(false);
     const [guarantorsSelected, setGuarantorsSelected] = useState([]);
     const [selectedPayments, setSelectedPayments] = useState([]);
+    const [customFrequency, setCustomFrequency] = useState('');
+    const [isCustomFrequency, setIsCustomFrequency] = useState(false);
+    const frequencyDays = { '1': 1, '7': 7, '30': 30, '90': 90, '180': 180, '365': 365 };
+
     const { register, handleSubmit, control, setValue, watch, formState: { errors, isValid } } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            borrowerId: state.borrower?.id || "",
+            borrowerId: state.borrower?.id ? parseInt(state.borrower.id, 10) : "",
             amount: state.amount || "",
-            currency: state.currency || null, // שים לב לערך ברירת המחדל null
-            frequency: state.frequency || "",
+            currency: state.currency != null ? parseInt(state.currency, 10) : null,
+            frequency: state.frequency != null ? parseInt(state.frequency, 10) : "",
             totalPayments: state.totalPayments || "",
             repaymentDate: state.repaymentDate?.split('T')[0] || "",
-            guarantees: state.guarantees?.map(g => ({ guarantorId: g.guarantor?.id || "" })) || [],
-            depositGuarantee: state.depositGuarantee?.map(g => ({ guarantorId: g.guarantor?.id || "" })) || [],
+            guarantees: state.guarantees?.map(g => ({ guarantorId: parseInt(g.guarantor?.id, 10) })) || [],
+            depositGuarantee: state.depositGuarantee?.map(g => ({ depositId: parseInt(g.depositId, 10) })) || [],
         },
         mode: 'onChange',
     });
@@ -60,6 +64,9 @@ const LoanAddEdit = () => {
         name: "depositGuarantee"
     });
     useEffect(() => {
+        console.log(state);
+    }, []);
+    useEffect(() => {
         const guarantorsId = watch('guarantees').map(x => +x.guarantorId);
         const borrowerId = watch('borrowerId');
         if (borrowerId) guarantorsId.push(+borrowerId);
@@ -67,28 +74,34 @@ const LoanAddEdit = () => {
     }, [watch('borrowerId'), watch('guarantees')]);
 
     const onSubmit = (data) => {
-        const frequencyDays = { '1': 1, '7': 7, '30': 30, '90': 90, '180': 180, '365': 365 };
+        console.log(selectedPayments);
         const paymentMethodsValue = selectedPayments.reduce((acc, current) => acc + current, 0);
         const repaymentDate = new Date(data.repaymentDate);
         data.repaymentDate = new Date(Date.UTC(repaymentDate.getFullYear(), repaymentDate.getMonth(), repaymentDate.getDate()));
-        data.frequency = frequencyDays[data.frequency] || 0;
-        const formattedData = { 
-            ...data, 
+        // data.frequency = frequencyDays[data.frequency] || 0;
+        const formattedData = {
+            ...data,
             paymentMethods: paymentMethodsValue // שולח את הערך המקודד של אמצעי התשלום
         };
+        console.log(formattedData)
         state.borrower?.id ? dispatch(editLoan(formattedData, state.borrower.id)) : dispatch(addLoan(formattedData, navigate));
     };
 
-    const renderSelectField = (label, name, options) => (
+    const renderSelectField = (label, name, options, { multiple = false, renderValue } = {}) => (
         <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
             <InputLabel>{label}</InputLabel>
             <Select
                 label={label}
-                value={watch(name) ?? 0} // שימוש ב-null במקום 0
+                multiple={multiple}
+                value={watch(name) || 0}
                 {...register(name)}
-                onChange={(e) => setValue(name, parseInt(e.target.value, 10))} // המרה למספר
+                onChange={(e) => {
+                    const value = multiple ? e.target.value : parseInt(e.target.value, 10);
+                    setValue(name, value);
+                }}
+                renderValue={renderValue}
             >
-                <MenuItem value={null} disabled>בחר {label}</MenuItem>
+                {!multiple && <MenuItem value={null} disabled>בחר {label}</MenuItem>}
                 {options.map(option => (
                     <MenuItem key={option.id} value={option.id} disabled={guarantorsSelected.includes(option.id)}>
                         {option.name}
@@ -100,7 +113,6 @@ const LoanAddEdit = () => {
                     </MenuItem>
                 ))}
             </Select>
-
             {errors[name]?.message && <p>{errors[name]?.message}</p>}
         </FormControl>
     );
@@ -112,26 +124,28 @@ const LoanAddEdit = () => {
                 <TextField label="סכום" variant="outlined" fullWidth type="number" {...register("amount")} sx={{ mb: 2 }} />
                 {renderSelectField("מטבע", "currency", currencyOptions.map(c => ({ id: c?.value, name: c.label })))}
                 <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                            <InputLabel>שיטת תשלום</InputLabel>
-                            <Select
-                                label="שיטת תשלום"
-                                multiple
-                                value={selectedPayments}
-                                onChange={handlePaymentChange}
-                                renderValue={(selected) => selected.map(id => paymentMethodsOptions.find(option => option.id === id)?.name).join(', ')}
-                            >
-                                {paymentMethodsOptions.map(option => (
-                                    <MenuItem key={option.id} value={option.id}>
-                                        <Checkbox checked={selectedPayments.includes(option.id)} />
-                                        <ListItemText primary={option.name} />
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {errors.paymentMethods?.message && <p>{errors.paymentMethods?.message}</p>}
-                        </FormControl>
-                {renderSelectField("תדירות", "frequency", [{ id: '1', name: 'יום' }, { id: '7', name: 'שבוע' }, { id: '30', name: 'חודש' }, { id: '90', name: '3 חודשים' }, { id: '180', name: '6 חודשים' }, { id: '365', name: 'שנה' }])}
+                    <InputLabel>שיטת תשלום</InputLabel>
+                    <Select label="שיטת תשלום" multiple value={selectedPayments} onChange={handlePaymentChange}
+                        renderValue={(selected) => selected.map(id => paymentMethodsOptions.find(option => option.id === id)?.name).join(', ')}>
+                        {paymentMethodsOptions.map(option => (
+                            <MenuItem key={option.id} value={option.id}>
+                                <Checkbox checked={selectedPayments.includes(option.id)} /> <ListItemText primary={option.name} /> </MenuItem>))}
+                    </Select>
+                    {errors.paymentMethods?.message && <p>{errors.paymentMethods?.message}</p>}
+                </FormControl>
+                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+                    <InputLabel>תדירות</InputLabel>
+                    <Select label="תדירות" {...register("frequency")} onChange={(e) => { const value = e.target.value; setIsCustomFrequency(value === 'custom'); setValue("frequency", value === 'custom' ? '' : value); }}>
+                        <MenuItem value="custom">הכנס תדירות ידנית</MenuItem>
+                        {Object.entries(frequencyDays).map(([key, days]) => <MenuItem key={key} value={days}>{key} יום</MenuItem>)}
+                    </Select>
+                    {errors.frequency?.message && <p>{errors.frequency?.message}</p>}
+                </FormControl>
+                {isCustomFrequency && <TextField label="מספר ימים" variant="outlined" fullWidth type="number" value={customFrequency} onChange={(e) => { setCustomFrequency(e.target.value); setValue("frequency", e.target.value); }} sx={{ mb: 2 }} />}
                 <TextField label="מספר תשלומים" variant="outlined" fullWidth type="number" {...register("totalPayments")} sx={{ mb: 2 }} />
+                {errors.totalPayments?.message && <p>{errors.totalPayments?.message}</p>}
                 <TextField label="תאריך החזר" variant="outlined" fullWidth type="date" {...register("repaymentDate")} InputLabelProps={{ shrink: true }} sx={{ mb: 2 }} />
+                {errors.repaymentDate?.message && <p>{errors.repaymentDate?.message}</p>}
                 <InputLabel>ערבים</InputLabel>
                 <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
                     {guaranteeFields.map((item, index) => (
@@ -149,16 +163,16 @@ const LoanAddEdit = () => {
                 <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
                     {depositGuaranteeFields.map((item, index) => (
                         <Box key={item.id} sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            {renderSelectField("הפקדה", `depositGuarantee.${index}.depositId`, deposits.map( deposit=> ({ id: deposit.id, name: `${deposit.amount} ${deposit.depositor.lastName} id:${deposit.id}` })))}
+                            {renderSelectField("הפקדה", `depositGuarantee.${index}.depositId`, deposits.map(deposit => ({ id: deposit.id, name: `${deposit.amount} ${deposit.depositor.lastName} id:${deposit.id}` })))}
                             <Button onClick={() => removeDepositGuarantee(index)} color="error">הסר</Button>
                         </Box>
                     ))}
                     <Button onClick={(e) => { e.preventDefault(); appendDepositGuarantee({}) }} variant="outlined" sx={{ mb: 2 }}>הוסף הפקדה</Button>
                 </FormControl>
-             
+
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Button onClick={() => navigate('/')} color="secondary">ביטול</Button>
-                    <Button type="submit" variant="contained" color="primary" disabled={!isValid}>
+                    <Button type="submit" variant="contained" color="primary" >
                         {state.borrower?.id ? "עדכן הלוואה" : "הוסף הלוואה"}
                     </Button>
                 </Box>

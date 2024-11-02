@@ -26,7 +26,7 @@ export const paymentMethodsOptions = [
     { id: 0, name: 'אחר' },
     { id: 1, name: 'צ"ק' },
     { id: 2, name: 'מזומן' },
-    { id: 3, name: 'העברה' }
+    { id: 4, name: 'העברה' }
 ];
 export const paymentMethodsOptionsValue = {
     0: 'אחר',

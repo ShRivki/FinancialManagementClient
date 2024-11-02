@@ -44,9 +44,32 @@ export const repaymentDeposit = (id, repaymentAmount) => {
             dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data});
             alert(`הוחזר ${repaymentAmount} בהצלחה`);
         } catch (error) {
-            console.error(error);
+            // אם השגיאה מכילה את ההודעה על כך שנדרש אישור מנהל
+            if (error.response ) {
+                const managerApproval = window.confirm(` האם להמשיך בכל זאת?`);
+                if (managerApproval) {
+                    // קריאה חוזרת עם אישור מנהל
+                    const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}&managerApproval=true`);
+                    dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data });
+                    alert(`הוחזר ${repaymentAmount} בהצלחה`);
+                }
+            } else {
+                // הצגת שגיאה כללית
+                alert(error.response.data || "שגיאה בלתי צפויה");
+            }
         } finally {
             dispatch({ type: actiontype.LOADING_END }); // סיום טעינה
         }
     };
+};
+
+export const getDepositsByDate = async (untilDate) => {
+    try {
+        const response = await axios.get(`${URL}/upToDate/${untilDate}`);
+        return response.data;
+
+    } catch (error) {
+        console.error('Error fetching deposits by date:', error);
+        throw error;
+    }
 };

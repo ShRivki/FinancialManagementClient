@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Typography, Divider, Grid, IconButton, Dialog, 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useLocation } from 'react-router-dom';
 import SortFilter from '../User/sortFilter';
-import LoanDetails from '../Loan/LoanDetails';
+import LoanDetails from '../Loan/loanDetails';
 
 const GuaranteeList = () => {
   const { state } = useLocation();

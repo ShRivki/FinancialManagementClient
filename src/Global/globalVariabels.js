@@ -48,10 +48,10 @@ const GlobalVariabel = () => {
     return (
         <Box sx={{ flexGrow: 1, p: 2, bgcolor: '#e3f2fd', borderRadius: 2, boxShadow: 3 }}>
             <Typography variant="h5" sx={{ mb: 2, color: '#004d40', textAlign: 'center' }}>מידע גלובלי</Typography>
-            <div>{totalFundBalanceILS}ש"ח</div>
-                        <div>{totalFundBalanceUSD}דולר</div>
-                        <div>{totalFundBalanceGBP}שטרלינג</div>
-                        <div>{totalFundBalanceEUR}יורו</div>
+            <div>{totalFundBalanceILS} ₪</div>
+            <div>{totalFundBalanceUSD} $</div>
+            <div>{totalFundBalanceGBP} £</div>
+            <div>{totalFundBalanceEUR} €</div>
             <Grid container spacing={3} justifyContent="center">
                 <Grid item xs={12} sm={4}>
                     <Box sx={{ p: 2, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 1, textAlign: 'center' }}>
@@ -81,7 +81,7 @@ const GlobalVariabel = () => {
                         ) : (
                             <Typography variant="h5"> ש"ח {formatNumber(displayTotalLoansGranted)}</Typography>
                         )}
-                        
+
                     </Box>
                 </Grid>
 

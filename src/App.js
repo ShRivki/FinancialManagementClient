@@ -12,6 +12,7 @@ import GuaranteeList from './Guarantee/guaranteeList.js';
 import LoansList from './Loan/loanList.js';
 import LoanAddEdit from './Loan/loanAddEdit.js';
 import Home from './Home/home.js';
+import CurrentPendingItems from './Global/currentPendingItems.js'
 import { getUsers } from './Services/userService.js';
 import { getDeposits } from './Services/depositService.js';
 
@@ -37,6 +38,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LogIn />} />
         <Route path="/UserList" element={token ? <UserList /> : <Navigate to="/" />} />
+        <Route path="/CurrentPendingItems" element={token ? <CurrentPendingItems /> : <Navigate to="/" />} />
         <Route path="/DonationsList" element={token ? <DonationsList /> : <Navigate to="/" />} />
         <Route path="/addDonation" element={token ? <AddDonation /> : <Navigate to="/" />} />
         <Route path="/DepositsList" element={token ? <DepositsList /> : <Navigate to="/" />} />

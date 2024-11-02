@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getLoans } from '../Services/loanService';
 import { useLocation } from 'react-router-dom';
-import LoanDetails from './LoanDetails';
+import LoanDetails from './loanDetails';
 import SortFilter from '../User/sortFilter';  // שים לב לשם הנכון של הקומפוננטה
 import { Typography, Box, Divider } from '@mui/material';
 import ExportButton from '../exportButton';
