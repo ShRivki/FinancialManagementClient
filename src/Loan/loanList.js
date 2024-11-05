@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLoans } from '../Services/loanService';
+import { getLoans, getInactiveLoans } from '../Services/loanService';
 import { useLocation } from 'react-router-dom';
 import LoanDetails from './loanDetails';
 import SortFilter from '../User/sortFilter';  // שים לב לשם הנכון של הקומפוננטה
-import { Typography, Box, Divider } from '@mui/material';
+import { Typography, Box, Divider, Checkbox,FormControlLabel } from '@mui/material';
 import ExportButton from '../exportButton';
 
 const LoansList = () => {
@@ -12,12 +12,16 @@ const LoansList = () => {
   const dispatch = useDispatch();
   const allLoans = useSelector(state => state.Loan.loans);
   const [sortOrder, setSortOrder] = useState('default');
-
+  const [showInactive, setShowInactive] = useState(true);
   useEffect(() => {
-    if (!state?.loans) {
+    if (!state?.loans && !showInactive) {
+      dispatch(getInactiveLoans());
+    }
+    else {
       dispatch(getLoans());
     }
-  }, [dispatch, state]);
+    console.log("l")
+  }, [showInactive,dispatch, state]);
 
   const loans = state?.loans || allLoans;
   const formatDate = (date) => {
@@ -50,8 +54,7 @@ const LoansList = () => {
     { value: 'nameDesc', label: 'שם (ת–א)' },
     { value: 'repaymentDateAsc', label: 'תאריך פרעון (הקדום המאוחר)' },
     { value: 'repaymentDateDesc', label: 'תאריך פרעון (המאוחר להקדום)' },
-];
-
+  ];
 
   const handleSortChange = (newSortOrder) => {
     setSortOrder(newSortOrder);
@@ -59,6 +62,10 @@ const LoansList = () => {
 
   return (
     <Box sx={{ p: 2 }}>
+      {!state?.loans&&<FormControlLabel
+        control={<Checkbox checked={showInactive} onChange={() => setShowInactive(!showInactive)} color="primary" />}
+        label={ 'הצג הלוואות פעילות' }
+      />}
       <SortFilter
         items={loans}
         sortOrder={sortOrder}
@@ -66,33 +73,33 @@ const LoansList = () => {
         sortFunctions={sortFunctions}
         sortOptions={sortOptions}
       >
-       
+
         {(sortedItems) => (
           <>
-           <ExportButton
-            data={loans.map(loan => ({
-              'Loan ID': loan.id,
-              'Borrower First Name': loan.borrower.firstName,
-              'Borrower Last Name': loan.borrower.lastName,
-              'Borrower ID': loan.borrower.identity,
-              'Loan Date': formatDate(loan.loanDate),
-              'Repayment Date': formatDate(loan.repaymentDate),
-              'Frequency': loan.frequency,
-              'Monthly Payment': loan.monthlyPayMent,
-              'Total Payments': loan.totalPayments,
-              'Current Payment': loan.currentPayment,
-              'Remaining Amount': loan.remainingAmount,
-              'Status': loan.status ? 'Active' : 'Inactive',
-              'Amount': loan.amount,
-            }))}
-            fileName={`LoansList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
-          />
+            <ExportButton
+              data={loans.map(loan => ({
+                'מזהה הלוואה ': loan.id,
+                'מזהה לווה': loan.borrower.identity,
+                'שם פרטי': loan.borrower.firstName,
+                'שם משפחה': loan.borrower.lastName,
+                'תאריך לקיחת הלוואה ': formatDate(loan.loanDate),
+                'סכום הלוואה': loan.amount,
+                'סכום שנותר לתשלום ': loan.remainingAmount,
+                'תאריך החזר ראשון ': formatDate(loan.repaymentDate),
+                'תדירות בחזר בחודשים': loan.frequency,
+                'סכום ההחזר הבא': loan.monthlyRepayment,
+                'תשלום נוכחי': loan.currentPayment,
+                'כמות תשלומים': loan.totalPayments,
+                'סטטוס': loan.status ? 'פעיל' : 'לא פעיל',
+              }))}
+              fileName={`LoansList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
+            />
             <Divider sx={{ mb: 2 }} />
             {sortedItems.length === 0
               ? <Typography variant="h6" align="center" sx={{ mt: 4 }}>No Loans available</Typography>
               : sortedItems.map((loan, index) => (
-                  loan ? <LoanDetails key={index} loan={loan} /> : null
-                ))
+                loan ? <LoanDetails key={index} loan={loan} /> : null
+              ))
             }
           </>
         )}

@@ -6,6 +6,7 @@ import DonationDetails from './donationDetails';
 import SortFilter from '../User/sortFilter';
 import { Typography, Box, Divider, Grid, Paper } from '@mui/material';
 import ExportButton from '../exportButton';
+import {currencyOptions} from '../constants'
 const DonationsList = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
@@ -54,13 +55,13 @@ const DonationsList = () => {
           <>
           <ExportButton
               data={sortedItems.map(donation => ({
-                'Name': donation.donor.firstName + ' ' + donation.donor.lastName,
-                'ID': donation.donor.identity,
-                'Amount': donation.amount,
-                'Currency': donation.currency, // הוספת משתנה מטבע
-                'Fundraiser Type': donation.fundraiserType || 'N/A', // הצגת סוג המגייס במקום התאריך
-                'Notes': donation.notes,
-                'Status': donation.status ? 'Active' : 'Inactive',
+                'מזהה תרומה': donation.donor.identity,
+                'שם פרטי': donation.donor.firstName ,
+                'שם משפחה': donation.donor.lastName,
+                'סכום': donation.amount,
+                'סוג': currencyOptions[donation.currency], // הוספת משתנה מטבע
+                'מתרים': donation.fundraiserType || 'N/A', // הצגת סוג המגייס במקום התאריך
+                'הערות': donation.notes,
               }))}
               fileName={`DonationsList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
               />

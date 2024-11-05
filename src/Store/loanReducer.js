@@ -19,6 +19,7 @@ const loansReducer = (state = initialState, action) => {
                 repaymentLoans[repaymentIndex] = action.data;
                 return { ...state, loans: repaymentLoans };
             } else {
+                console.log(state.loans)
                 console.error(`Repayment failed: Loan with ID ${action.data.id} not found.`);
                 return state;
             }

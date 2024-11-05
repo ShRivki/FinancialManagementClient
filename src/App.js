@@ -15,6 +15,7 @@ import Home from './Home/home.js';
 import CurrentPendingItems from './Global/currentPendingItems.js'
 import { getUsers } from './Services/userService.js';
 import { getDeposits } from './Services/depositService.js';
+import { getLoans } from './Services/loanService.js';
 
 function App() {
   const loading = useSelector(state => state.Loading.loading);
@@ -24,6 +25,7 @@ function App() {
   useEffect(() => {
     dispatch(getUsers());
     dispatch(getDeposits());
+    dispatch(getLoans());
   }, [dispatch]);
 
   return (

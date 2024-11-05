@@ -18,7 +18,7 @@ const schema = yup.object({
     paymentMethods: yup.array().of(yup.number()).min(1, 'חייב לבחור לפחות שיטת תשלום אחת'),
     guarantees: yup.array().of(yup.object({ guarantorId: yup.number().required().min(1) })),
     depositGuarantee: yup.array().of(yup.object({ depositUserId: yup.number().required().min(1) })),
-    frequency: yup.string().required("שדה חובה"),
+    frequency: yup.number("ערך מספרי").required("שדה חובה").min(1, 'סכום חייב להיות חיובי').typeError('סכום חייב להיות מספר תקין'),
     totalPayments: yup.number().required("שדה חובה").min(1),
     repaymentDate: yup.date().required("שדה חובה").min(new Date()),
 }).required();
@@ -36,7 +36,6 @@ const LoanAddEdit = () => {
     const [selectedPayments, setSelectedPayments] = useState([]);
     const [customFrequency, setCustomFrequency] = useState('');
     const [isCustomFrequency, setIsCustomFrequency] = useState(false);
-    const frequencyDays = { '1': 1, '7': 7, '30': 30, '90': 90, '180': 180, '365': 365 };
 
     const { register, handleSubmit, control, setValue, watch, formState: { errors, isValid } } = useForm({
         resolver: yupResolver(schema),
@@ -149,14 +148,8 @@ const LoanAddEdit = () => {
                     </Select>
                     {errors.paymentMethods?.message && <p>{errors.paymentMethods?.message}</p>}
                 </FormControl>
-                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                    <InputLabel>תדירות</InputLabel>
-                    <Select label="תדירות" {...register("frequency")} onChange={(e) => { const value = e.target.value; setIsCustomFrequency(value === 'custom'); setValue("frequency", value === 'custom' ? '' : value); }}>
-                        <MenuItem value="custom">הכנס תדירות ידנית</MenuItem>
-                        {Object.entries(frequencyDays).map(([key, days]) => <MenuItem key={key} value={days}>{key} יום</MenuItem>)}
-                    </Select>
-                    {errors.frequency?.message && <p>{errors.frequency?.message}</p>}
-                </FormControl>
+                <TextField label="תדירות החזר בחודשים" variant="outlined" fullWidth type="number" {...register("frequency")} sx={{ mb: 2 }} />
+                {errors.frequency?.message && <p>{errors.frequency?.message}</p>}
                 {isCustomFrequency && <TextField label="מספר ימים" variant="outlined" fullWidth type="number" value={customFrequency} onChange={(e) => { setCustomFrequency(e.target.value); setValue("frequency", e.target.value); }} sx={{ mb: 2 }} />}
                 <TextField label="מספר תשלומים" variant="outlined" fullWidth type="number" {...register("totalPayments")} sx={{ mb: 2 }} />
                 {errors.totalPayments?.message && <p>{errors.totalPayments?.message}</p>}

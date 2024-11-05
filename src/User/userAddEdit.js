@@ -3,21 +3,28 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { addUser, editUser } from "../Services/userService";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Checkbox, FormControlLabel } from '@mui/material'; // ייבוא של FormControlLabel ו־Checkbox
 
-const schema = yup.object({
-    identity: yup.string().required('Required field').matches(/^\d{9}$/, 'תעודת הזהות חייבת להכיל 9 ספרות בדיוק'),
-    firstName: yup.string().required('Required field').matches(/^.{3,}$/, 'שם חייב להכיל לפחות 3 תווים'),
-    lastName: yup.string().required('Required field').matches(/^.{3,}$/, 'שם חייב להכיל לפחות 3 תווים'),
-    address: yup.string().required('Required field').matches(/^.{3,}$/, 'הכתובת חייבת להכיל לפחות 3 תווים ויכולה להכיל אותיות ומספרים'),
-    phone: yup.string().required('Required field').matches(/^\d{9,10}$/, 'מספר הטלפון חייב להכיל 9 או 10 ספרות בדיוק'),
-    phone2: yup.string().nullable().test('is-valid-phone', 'מספר הטלפון חייב להכיל 9 או 10 ספרות בדיוק', value => !value || /^\d{9,10}$/.test(value)),
-    email: yup.string().required('Required field').email('אימייל חייב להיות תקני'),
-    isReliable: yup.boolean() // שדה אמינות המשתמש
-}).required();
 
 const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
+    const schema = yup.object({
+        identity: yup.string().required('Required field').matches(/^\d{9}$/, 'תעודת הזהות חייבת להכיל 9 ספרות בדיוק').test('is-unique', 'מספר זהות קיים כבר', value => isIdentityUnique(value)),
+        firstName: yup.string().required('Required field').matches(/^.{3,}$/, 'שם חייב להכיל לפחות 3 תווים'),
+        lastName: yup.string().required('Required field').matches(/^.{3,}$/, 'שם חייב להכיל לפחות 3 תווים'),
+        address: yup.string().required('Required field').matches(/^.{3,}$/, 'הכתובת חייבת להכיל לפחות 3 תווים ויכולה להכיל אותיות ומספרים'),
+        phone: yup.string().required('Required field').matches(/^\d{9,10}$/, 'מספר הטלפון חייב להכיל 9 או 10 ספרות בדיוק'),
+        phone2: yup.string().nullable().test('is-valid-phone', 'מספר הטלפון חייב להכיל 9 או 10 ספרות בדיוק', value => !value || /^\d{9,10}$/.test(value)),
+        email: yup.string().required('Required field').email('אימייל חייב להיות תקני'),
+        isReliable: yup.boolean() // שדה אמינות המשתמש
+    }).required();
+
+    const users = useSelector(state => state.User.users); // העברת ה־useSelector פנימה לקומפוננטה
+
+    // יצירת פונקציה לבדוק אם מספר הזהות קיים
+    const isIdentityUnique = (identity) => {
+        return !users.some(user => user.identity === identity && user.identity != initialValues?.identity);
+    };
     const dispatch = useDispatch();
     const {
         register,
@@ -37,8 +44,22 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
         }
     }, [initialValues, reset]);
 
+    const showConfirmationAndContinue = (message, existingUser) => {
+        const confirm = window.confirm(message);
+        return confirm; 
+    };
 
     const onSubmit = (data) => {
+        const existingUserByEmail = users.find(user => user.email === data.email && user.identity !== initialValues.identity);
+        const existingUserByPhone = users.find(user => (user.phone === data.phone || user.phone2 === data.phone2) && user.identity !== initialValues.identity);
+
+        if (existingUserByEmail && !showConfirmationAndContinue(`המייל כבר קיים במערכת עם המשתמש: ${existingUserByEmail.firstName} ${existingUserByEmail.lastName}. האם אתה רוצה להמשיך?`)) {
+            return; // לא להמשיך אם המייל קיים והמשתמש לחץ על ביטול
+        }
+
+        if (existingUserByPhone && !showConfirmationAndContinue(`מספר הטלפון כבר קיים במערכת עם המשתמש: ${existingUserByPhone.firstName} ${existingUserByPhone.lastName}. האם אתה רוצה להמשיך?`)) {
+            return; // לא להמשיך אם הטלפון קיים והמשתמש לחץ על ביטול
+        }
         if (initialValues.identity) {
             dispatch(editUser(data));
         } else {
@@ -46,6 +67,7 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
         }
         handleClose();
     };
+
 
     return (
         <Dialog open={open} onClose={handleClose}>

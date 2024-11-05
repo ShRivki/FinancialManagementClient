@@ -43,10 +43,10 @@ const UserList = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    dispatch(getUsers());
+  // useEffect(() => {
+  //   dispatch(getUsers());
    
-  }, [dispatch]);
+  // }, [dispatch]);
 
   const highlightText = (text) => {
     if (typeof text !== 'string') return text;
@@ -72,13 +72,13 @@ const UserList = () => {
       <Box sx={{ mb: 2, textAlign: 'right' }}>
       <ExportButton
         data={users.map(user => ({
-          'ID': user.identity,
-          'First Name': user.firstName,
-          'Last Name': user.lastName,
-          'Address': user.address,
-          'Phone': user.phone,
-          'Secondary Phone': user.phone2 || 'N/A',
-          'Email': user.email,
+          'מזהה משתמש': user.identity,
+          'שם פרטי': user.firstName,
+          'שם משפחה': user.lastName,
+          'כתובת': user.address,
+          'טלפון 1': user.phone,
+          'טלפון 2': user.phone2 || '-',
+          'מייל': user.email,
         }))}
         fileName={`UsersList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
       />

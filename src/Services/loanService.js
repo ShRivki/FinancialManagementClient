@@ -18,6 +18,36 @@ export const getLoans = () => {
         // }
     }
 }
+export const updateRepaymentDate = (id, date) => {
+    return async dispatch => {
+        try {
+            dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
+            const res = await axios.put(`${URL}/${id}/repaymentDate/${date}`); // בקשה לשינוי תאריך החזר
+            dispatch({ type: actiontype.EDIT_LOAN, data: res.data }); // עדכון ה-state עם התוצאה
+            alert('תאריך ההחזר עודכן בהצלחה');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            dispatch(actiontype.endLoading()); // סיום מצב טעינה
+        }
+    }
+}
+
+export const getInactiveLoans = () => {
+    return async dispatch => {
+        try {
+            //dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
+            const res = await axios.get(`${URL}/Inactive`);
+            dispatch({ type: actiontype.GET_LOANS, data: res.data });
+            // console.log(res.data)
+        } catch (error) {
+            console.error(error);
+        }
+        // finally {
+        //     dispatch(actiontype.endLoading()); // סיום מצב טעינה
+        // }
+    }
+}
 export const getLoansByDate = async (untilDate) => {
     try {
         const response = await axios.get(`${URL}/upToDate/${untilDate}`);
@@ -55,6 +85,7 @@ export const repaymentLoan = (id, repaymentAmount) => {
 
             const res = await axios.delete(url);
             dispatch({ type: actiontype.REPAYMENT_LOAN, data: res.data });
+            alert('חזר הלוואה  בוצעה בהצלחה');
         } catch (error) {
             console.error(error);
         } finally {

@@ -2,6 +2,7 @@
 import { date } from 'yup';
 import * as actiontype from '../Store/actions'
 import axios from "axios";
+import { alertClasses } from '@mui/material';
 
 const URL = 'https://localhost:7030/api';
 
@@ -42,6 +43,7 @@ export const getUsers = () => {
     } catch (error) {
       console.error(error);
     }
+    alert("m")
   }
 }
 export const addUser = (data) => {

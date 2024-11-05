@@ -1,23 +1,20 @@
 import React, { useState } from 'react';
-import { Box, Card, CardContent, Typography, Divider, Button, Grid, Avatar, TextField } from '@mui/material';
+import { Box, Card, CardContent, Typography, Divider, Button, Grid, Avatar, TextField ,IconButton} from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { format } from 'date-fns';
 import { repaymentDeposit } from '../Services/depositService';
 import { useDispatch } from 'react-redux';
 import { currencyOptionsValue } from '../constants.js';
 import { paymentMethodsOptionsValue } from '../constants.js'
-// const paymentMethodsOptions = {
-//     1: 'צ\'ק',
-//     2: 'מזומן',
-//     4: 'העברה',
-// };
+import EditIcon from '@mui/icons-material/Edit';
+import LoanRepaymentDateUpdate from '../Loan/loanRepaymentDateUpdate.js';
 
 
 const DepositDetails = ({ deposit }) => {
     const { id, depositor, amount, notes, dateOfMaturity, status, amountRefunded, currency, paymentMethods } = deposit;
     const dispatch = useDispatch();
     const [repaymentAmount, setRepaymentAmount] = useState('');
-
+    const [editDate, setEditDate] = useState(false);
     const renderTextSection = (label, value) => (
         <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle1" color="#003366">{label}</Typography>
@@ -63,7 +60,11 @@ const DepositDetails = ({ deposit }) => {
                 <Divider sx={{ my: 2, borderColor: '#003366' }} />
                 {renderTextSection('סכום הפקדה:', `${amountRefunded} / ${amount} ${currencyOptionsValue[currency]}`)}
                 {renderTextSection('הערות:', notes)}
-                {renderTextSection('תאריך פרעון:', dateOfMaturity ? format(new Date(dateOfMaturity), 'yyyy-MM-dd') : 'אין תאריך פרעון')}
+                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#2F4F4F' }}>תאריך פרעון: {dateOfMaturity ? format(new Date(dateOfMaturity), 'dd/MM/yyyy') : 'אין תאריך פרעון'}</Typography>
+                    <IconButton onClick={() => setEditDate(!editDate)}><EditIcon /></IconButton>
+                </Box>
+                {editDate && <LoanRepaymentDateUpdate deposit={deposit} />}
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל')}
                 {renderTextSection('שיטות תשלום:', getPaymentMethodsDisplay(paymentMethods))}
                 <Box sx={{ mt: 2 }}>

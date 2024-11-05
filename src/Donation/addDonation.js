@@ -6,13 +6,13 @@ import * as yup from "yup";
 import { useDispatch, useSelector } from 'react-redux';
 import { addDonation } from '../Services/donationService';
 import UserAddEdit from '../User/userAddEdit'; // ייבוא רכיב הוספת משתמש
-import { currencyOptions ,fundraiserOptions} from '../constants.js'
+import { currencyOptions, fundraiserOptions } from '../constants.js'
 const schema = yup.object({
     donorId: yup.number().required('תורם נדרש').min(1, 'מזהה תורם חייב להיות מספר חיובי'),
     amount: yup.number().required('סכום נדרש').positive('הסכום חייב להיות חיובי').typeError('הסכום חייב להיות מספר'),
-    currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2,3], 'מטבע לא חוקי'),
+    currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2, 3], 'מטבע לא חוקי'),
     fundraiser: yup.number().required('קמפיין נדרש').oneOf([0, 1, 2, 3], 'קמפיין לא חוקי').default(3),
-    notes: yup.string().notRequired().max(255, 'הערות לא יכולות לעלות על 255 תווים'),
+    notes: yup.string().max(255, 'הערות לא יכולות לעלות על 255 תווים').default("גג"), 
 }).required();
 
 const AddDonation = ({ open, handleClose, initialValues = {} }) => {
@@ -34,6 +34,12 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
         setValue("currency", selectedCurrency);
         setValue("fundraiser", selectedFundraiser);
     }, [selectedDonor, selectedCurrency, selectedFundraiser, setValue]);
+
+    useEffect(() => {
+        if (!isValid) {
+            console.log("Form validation errors:", errors);
+        }
+    }, [isValid, errors]);
 
     const onSubmit = (data) => {
         // כאן נוודא ש-currency הוא מספר ולא מחרוזת
@@ -91,7 +97,7 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
                                 sx={{ width: 120 }} // רוחב צר
                             />
                         </div>
-                        <br/>
+                        <br />
                         <Autocomplete
                             options={fundraiserOptions}
                             getOptionLabel={(option) => option.label}
