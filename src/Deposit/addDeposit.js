@@ -12,7 +12,7 @@ const schema = yup.object({
     depositorId: yup.number().required('מפקיד נדרש').min(1, 'מפקיד חייב להיות מספר חיובי'),
     amount: yup.number().required('סכום נדרש').min(0, 'הסכום חייב להיות מספר שאינו שלילי'),
     currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2, 3], 'מטבע לא חוקי'),
-    dateOfMaturity: yup.date().required('תאריך חובה').min(new Date(), 'תאריך התפוגה לא יכול להיות לפני התאריך הנוכחי').typeError('תאריך לא חוקי'),
+    dateOfMaturity: yup.date().nullable().min(new Date(), 'תאריך התפוגה לא יכול להיות לפני התאריך הנוכחי').typeError('תאריך לא חוקי'),
     paymentMethods: yup.array().of(yup.number()).min(1, 'חייב לבחור לפחות שיטת תשלום אחת'),
     notes: yup.string().max(255, 'הערות לא יכולות לחרוג מ-255 תווים'),
 }).required();

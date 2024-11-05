@@ -6,20 +6,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { TextField, Button, MenuItem, Select, InputLabel, FormControl, Box, Dialog, DialogActions, Tooltip, Checkbox, ListItemText } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { addLoan, editLoan } from "../Services/loanService";
+import { fetchDepositGuaranteeAmount } from "../Services/userService.js";
 import UserAddEdit from '../User/userAddEdit';
 import WarningIcon from '@mui/icons-material/Warning';
 import { currencyOptions } from '../constants.js'
 import { paymentMethodsOptions } from '../constants.js'
 const schema = yup.object({
-    borrowerId: yup.number().required().min(1),
-    amount: yup.number().required().min(1),
+    borrowerId: yup.number().required("שדה חובה").min(1),
+    amount: yup.number("ערך מספרי").required("שדה חובה").min(1, 'סכום חייב להיות חיובי').typeError('סכום חייב להיות מספר תקין'),
     currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2, 3], 'מטבע לא חוקי'),
     paymentMethods: yup.array().of(yup.number()).min(1, 'חייב לבחור לפחות שיטת תשלום אחת'),
     guarantees: yup.array().of(yup.object({ guarantorId: yup.number().required().min(1) })),
-    depositGuarantee: yup.array().of(yup.object({ depositId: yup.number().required().min(1) })),
-    frequency: yup.string().required(),
-    totalPayments: yup.number().required().min(1),
-    repaymentDate: yup.date().required().min(new Date()),
+    depositGuarantee: yup.array().of(yup.object({ depositUserId: yup.number().required().min(1) })),
+    frequency: yup.string().required("שדה חובה"),
+    totalPayments: yup.number().required("שדה חובה").min(1),
+    repaymentDate: yup.date().required("שדה חובה").min(new Date()),
 }).required();
 
 const LoanAddEdit = () => {
@@ -29,7 +30,8 @@ const LoanAddEdit = () => {
     const deposits = useSelector(state => state.Deposits.deposits);
     const location = useLocation();
     const state = location.state || {};
-    const [userDialogOpen, setUserDialogOpen] = useState(false);
+    const [balanceGuaranteeAmounts, setbalanceGuaranteeAmounts] = useState({});
+    const [addUser, setaddUser] = useState(false);
     const [guarantorsSelected, setGuarantorsSelected] = useState([]);
     const [selectedPayments, setSelectedPayments] = useState([]);
     const [customFrequency, setCustomFrequency] = useState('');
@@ -46,7 +48,7 @@ const LoanAddEdit = () => {
             totalPayments: state.totalPayments || "",
             repaymentDate: state.repaymentDate?.split('T')[0] || "",
             guarantees: state.guarantees?.map(g => ({ guarantorId: parseInt(g.guarantor?.id, 10) })) || [],
-            depositGuarantee: state.depositGuarantee?.map(g => ({ depositId: parseInt(g.depositId, 10) })) || [],
+            depositGuarantee: state.depositGuarantee?.map(g => ({ depositUserId: parseInt(g.depositUser?.id, 10) })) || [],
         },
         mode: 'onChange',
     });
@@ -64,14 +66,26 @@ const LoanAddEdit = () => {
         name: "depositGuarantee"
     });
     useEffect(() => {
-        console.log(state);
-    }, []);
+        const fetchAllGuaranteeAmounts = async () => {
+            const amounts = {};
+            for (const user of users) {
+                const amount = await fetchDepositGuaranteeAmount(user.id);
+                amounts[user.id] = amount || 0; // אם אין ערך, תשמור 0
+            }
+            setbalanceGuaranteeAmounts(amounts);
+        };
+    
+        fetchAllGuaranteeAmounts();
+    }, [users]);
+    
     useEffect(() => {
         const guarantorsId = watch('guarantees').map(x => +x.guarantorId);
+        const depositGuaranteeId = watch('depositGuarantee').map(x => +x.depositUserId);
         const borrowerId = watch('borrowerId');
-        if (borrowerId) guarantorsId.push(+borrowerId);
-        setGuarantorsSelected(guarantorsId);
-    }, [watch('borrowerId'), watch('guarantees')]);
+        const arr = [];
+        setGuarantorsSelected(arr.concat(guarantorsId, depositGuaranteeId));
+    }, [watch('borrowerId'), watch('guarantees'), watch('depositGuarantee')]);
+
 
     const onSubmit = (data) => {
         console.log(selectedPayments);
@@ -84,7 +98,7 @@ const LoanAddEdit = () => {
             paymentMethods: paymentMethodsValue // שולח את הערך המקודד של אמצעי התשלום
         };
         console.log(formattedData)
-        state.borrower?.id ? dispatch(editLoan(formattedData, state.borrower.id)) : dispatch(addLoan(formattedData, navigate));
+        state?.borrower?.id ? dispatch(editLoan(formattedData, state.id)) : dispatch(addLoan(formattedData, navigate));
     };
 
     const renderSelectField = (label, name, options, { multiple = false, renderValue } = {}) => (
@@ -101,6 +115,7 @@ const LoanAddEdit = () => {
                 }}
                 renderValue={renderValue}
             >
+                
                 {!multiple && <MenuItem value={null} disabled>בחר {label}</MenuItem>}
                 {options.map(option => (
                     <MenuItem key={option.id} value={option.id} disabled={guarantorsSelected.includes(option.id)}>
@@ -122,7 +137,8 @@ const LoanAddEdit = () => {
             <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 600, margin: '0 auto' }}>
                 {renderSelectField("לווה", "borrowerId", users.map(user => ({ id: user.id, name: `${user.firstName} ${user.lastName} ${user.identity}`, isReliable: user.isReliable })))}
                 <TextField label="סכום" variant="outlined" fullWidth type="number" {...register("amount")} sx={{ mb: 2 }} />
-                {renderSelectField("מטבע", "currency", currencyOptions.map(c => ({ id: c?.value, name: c.label })))}
+                {errors.amount?.message && <p>{errors.amount?.message}</p>}
+                {renderSelectField("מטבע", "currency", currencyOptions.map(c => ({ id: c.value, name: c.label })))}
                 <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
                     <InputLabel>שיטת תשלום</InputLabel>
                     <Select label="שיטת תשלום" multiple value={selectedPayments} onChange={handlePaymentChange}
@@ -156,10 +172,23 @@ const LoanAddEdit = () => {
                     ))}
                     <Button onClick={(e) => { e.preventDefault(); appendGuarantee({}); }} variant="outlined" sx={{ mb: 2 }}>הוסף ערב</Button>
                 </FormControl>
-                <Button onClick={() => setUserDialogOpen(true)} variant="text" sx={{ mb: 2 }}>
+                <Button onClick={() => setaddUser(true)} variant="text" sx={{ mb: 2 }}>
                     הוסף ערב חדש
                 </Button>
-                <InputLabel>ערבות הפקדה</InputLabel>
+                <InputLabel>ערבים על הפקדות</InputLabel>
+                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+                    {depositGuaranteeFields.map((item, index) => (
+                        <Box key={item.id} sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            {renderSelectField("מפקיד", `depositGuarantee.${index}.depositUserId`, users.map(user => ({ id: user.id,  name: `${user.firstName} ${user.lastName}  יתרה: ${balanceGuaranteeAmounts[user.id] }`, isReliable: user.isReliable })))}
+                            <Button onClick={() => removeDepositGuarantee(index)} color="error">הסר</Button>
+                        </Box>
+                    ))}
+                    <Button onClick={(e) => { e.preventDefault(); appendDepositGuarantee({}); }} variant="outlined" sx={{ mb: 2 }}>הוסף ערב</Button>
+                </FormControl>
+                <Button onClick={() => setaddUser(true)} variant="text" sx={{ mb: 2 }}>
+                    הוסף ערב על הפקדה חדש
+                </Button>
+                {/* <InputLabel>ערבות הפקדה</InputLabel>
                 <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
                     {depositGuaranteeFields.map((item, index) => (
                         <Box key={item.id} sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -168,7 +197,7 @@ const LoanAddEdit = () => {
                         </Box>
                     ))}
                     <Button onClick={(e) => { e.preventDefault(); appendDepositGuarantee({}) }} variant="outlined" sx={{ mb: 2 }}>הוסף הפקדה</Button>
-                </FormControl>
+                </FormControl> */}
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Button onClick={() => navigate('/')} color="secondary">ביטול</Button>
@@ -177,10 +206,10 @@ const LoanAddEdit = () => {
                     </Button>
                 </Box>
             </form>
-            <Dialog open={userDialogOpen} onClose={() => setUserDialogOpen(false)}>
-                <UserAddEdit open={userDialogOpen} handleClose={() => setUserDialogOpen(false)} />
+            <Dialog open={addUser} onClose={() => setaddUser(false)}>
+                <UserAddEdit open={addUser} handleClose={() => setaddUser(false)} />
                 <DialogActions>
-                    <Button onClick={() => setUserDialogOpen(false)} color="secondary">ביטול</Button>
+                    <Button onClick={() => setaddUser(false)} color="secondary">ביטול</Button>
                 </DialogActions>
             </Dialog>
         </div>

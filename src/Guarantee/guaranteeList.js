@@ -4,21 +4,38 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useLocation } from 'react-router-dom';
 import SortFilter from '../User/sortFilter';
 import LoanDetails from '../Loan/loanDetails';
-
+import {getGuaranteeAmount} from '../Services/userService'
+import { currencyOptionsValue } from '../constants.js';
 const GuaranteeList = () => {
   const { state } = useLocation();
   const [sortOrder, setSortOrder] = useState('default');
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0); 
 
   useEffect(() => {
-    if (!state?.guarantees) {
-      // Handle missing guarantees data if needed
-    }
+    const fetchGuaranteeAmount = async () => {
+      if (state?.id) {
+        try {
+          const amount = await getGuaranteeAmount(state.id);
+          setTotalAmount(amount);
+        } catch (error) {
+          console.error('Error fetching guarantee amount:', error);
+        }
+      }
+    };
+  
+    fetchGuaranteeAmount();
   }, [state]);
-
-  const guarantees = state?.guarantees || [];
-  const totalAmount = guarantees.reduce((sum, guarantee) => sum + (guarantee.loan.remainingAmount || 0), 0);
+  
+  useEffect(() => {
+console.log(state?.guarantees )
+console.log(state?.depositGuarantees )
+  }, []);
+  const guarantees = [
+    ...(state?.guarantees || []),
+    ...(state?.depositGuarantees )
+];
   // Define your sort functions
   const sortFunctions = {
     amountAsc: (a, b) => a.loan.amount - b.loan.amount,
@@ -53,7 +70,7 @@ const GuaranteeList = () => {
   return (
     <Box sx={{ p: 2 }}>
          <Typography variant="h5" sx={{ mb: 2 }}>
-        סך כל הערביות שמשתמש זה ערב : {totalAmount} להכפיל סכומים במטח
+        סך כל הערביות שמשתמש זה ערב : {totalAmount} ש"ח
       </Typography>
       <SortFilter
         items={guarantees}
@@ -79,7 +96,7 @@ const GuaranteeList = () => {
                           Borrower: {guarantee?.loan?.borrower?.firstName} {guarantee?.loan?.borrower?.lastName}
                         </Typography>
                         <Typography variant="body1" sx={{ color: '#2F4F4F' }}>
-                          Amount: {guarantee?.loan?.amount} ש"ח
+                          Amount: {guarantee?.loan?.amount} {currencyOptionsValue[guarantee?.loan?.currency]} 
                         </Typography>
                       </Grid>
                       <Grid item xs={4} textAlign="right">

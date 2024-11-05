@@ -40,17 +40,23 @@ export const repaymentDeposit = (id, repaymentAmount) => {
     return async dispatch => {
         dispatch({ type: actiontype.LOADING_START }); // התחלת טעינה
         try {
+            
             const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}`);
             dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data});
             alert(`הוחזר ${repaymentAmount} בהצלחה`);
         } catch (error) {
             // אם השגיאה מכילה את ההודעה על כך שנדרש אישור מנהל
-            if (error.response ) {
-                const managerApproval = window.confirm(` האם להמשיך בכל זאת?`);
+            if (error.response && error.response.data) {
+                // הצגת הודעת השגיאה המקורית
+                console.log(error.response.data )
+                const errorMessage = error.response?.data?.message || 'שגיאה במהלך החזרה.';
+                // setMessage(errorMessage);
+                // const errorMessage = error.response.data
+                const managerApproval = window.confirm(`${errorMessage}\nהאם להמשיך בכל זאת?`);
                 if (managerApproval) {
                     // קריאה חוזרת עם אישור מנהל
                     const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}&managerApproval=true`);
-                    dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data });
+                    dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data});
                     alert(`הוחזר ${repaymentAmount} בהצלחה`);
                 }
             } else {

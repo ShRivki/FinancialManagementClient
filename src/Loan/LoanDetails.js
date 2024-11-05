@@ -85,9 +85,9 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
                 <Box sx={{ mb: 2 }}>
                     <Typography variant="subtitle1" color="#2F4F4F">הפקדות:</Typography>
                     {depositGuarantee && depositGuarantee.length > 0 ? (
-                        depositGuarantee.map((deposit, index) => (
+                        depositGuarantee.map((depositUser, index) => (
                             <Typography key={index} variant="body2" sx={{ color: '#2F4F4F' }}>
-                                מפקיד: {deposit.deposit.depositor.firstName} {deposit.deposit.depositor.lastName} - מזהה הפקדה: {deposit.deposit.id}
+                                מפקיד: {depositUser.depositUser.firstName} {depositUser.depositUser.lastName} - מזהה הפקדה: {depositUser.depositUser.id}
                             </Typography>
                         ))
                     ) : (

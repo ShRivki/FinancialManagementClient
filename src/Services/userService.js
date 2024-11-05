@@ -75,4 +75,49 @@ export const editUser = (data) => {
     }
   }
 }
+export const fetchDepositGuaranteeAmount = async(userId) => {
+  
+    try {
+      var res= await axios.get(`${URL}/User/${userId}/BalancetGuaranteeAmount`);
+      return res.data;
+
+    } catch (error) {
+      console.error("Error fetching deposit guarantee amount:", error);
+      return null;
+    } 
+  }
+  export const getGuaranteeAmount = async(userId) => {
+  
+    try {
+      var res= await axios.get(`${URL}/User/${userId}/GuaranteeAmount`);
+      return res.data;
+
+    } catch (error) {
+      console.error("Error fetching deposit guarantee amount:", error);
+      return null;
+    } 
+  }
+//   export const fetchDepositGuaranteeAmount = (users, navigate) => {
+//     return async dispatch => {
+//         try {
+//             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
+
+//             // מבצע לולאה על כל המשתמשים
+//             const updatedUsers = await Promise.all(users.map(async (user) => {
+//                 const { id, remainingAmount } = user; // הנחת המבנה של אובייקט המשתמש
+//                 const res = await axios.get(`${URL}/User/${user.id}/DepositGuaranteeAmount`)
+//                 return res.data; // מחזיר את המידע המעודכן של המשתמש
+//             }));
+
+//             console.log(updatedUsers); // הדפסת הרשימה המעודכנת של המשתמשים
+
+//             alert('עריכה בוצעה בהצלחה');
+//             navigate('/LoansList');
+//         } catch (error) {
+//             console.error("Error updating loans:", error);
+//         } finally {
+//             dispatch(actiontype.endLoading()); // סיום מצב טעינה
+//         }
+//     }
+// };
 

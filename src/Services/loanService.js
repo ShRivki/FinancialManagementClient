@@ -9,7 +9,7 @@ export const getLoans = () => {
             //dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.get(URL);
             dispatch({ type: actiontype.GET_LOANS, data: res.data });
-            console.log(res.data)
+            // console.log(res.data)
         } catch (error) {
             console.error(error);
         }

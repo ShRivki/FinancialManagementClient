@@ -12,12 +12,14 @@ const DepositsList = () => {
   const allDeposits = useSelector((state) => state.Deposits.deposits);
 
   useEffect(() => {
-    if (!state?.deposits) {
       dispatch(getDeposits());
-    }
+    console.log(deposits);
+    console.log(state)
   }, [dispatch, state]);
 
-  const deposits = state?.deposits || allDeposits;
+  const deposits = state?.id
+  ? allDeposits.filter((deposit) => deposit.depositor.id === state.id)
+  : allDeposits;
 
   const sortFunctions = {
     amountAsc: (a, b) => a.amount - b.amount,

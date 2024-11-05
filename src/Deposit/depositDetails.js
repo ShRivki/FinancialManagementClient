@@ -26,6 +26,7 @@ const DepositDetails = ({ deposit }) => {
             </Typography>
         </Box>
     );
+    
 
     const handleRepayment = () => {
         const amountToRepay = repaymentAmount ? parseFloat(repaymentAmount) : amount - amountRefunded;
