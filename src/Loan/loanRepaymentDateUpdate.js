@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { TextField, Button, Snackbar, Box } from "@mui/material";
-import { updateRepaymentDate, updateDepositDate } from '../Services/loanService'; // נוסף עדכון הפקדה
+import { updateRepaymentDate } from '../Services/loanService';
+import { updateDepositDate } from '../Services/depositService';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+
 
 const DateUpdate = ({ loan, deposit }) => {
   const [nextDate, setNextDate] = useState("");
@@ -28,10 +30,8 @@ const DateUpdate = ({ loan, deposit }) => {
     try {
       if (loan) {
         dispatch(updateRepaymentDate(loan.id, nextDate));
-        alert("תאריך ההחזר עודכן בהצלחה");
       } else if (deposit) {
-        // dispatch(updateDepositDate(deposit.id, nextDate));
-        alert("תאריך ההפקדה עודכן בהצלחה");
+        dispatch(updateDepositDate(deposit.id, nextDate));
       }
       ; // או המסלול המתאים להפקדה
     } catch (error) {

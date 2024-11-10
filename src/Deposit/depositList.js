@@ -11,11 +11,11 @@ const DepositsList = () => {
   const dispatch = useDispatch();
   const allDeposits = useSelector((state) => state.Deposits.deposits);
 
-  useEffect(() => {
-      dispatch(getDeposits());
-    console.log(deposits);
-    console.log(state)
-  }, [dispatch, state]);
+  // useEffect(() => {
+  //     dispatch(getDeposits());
+  //   console.log(deposits);
+  //   console.log(state)
+  // }, [dispatch, state]);
 
   const deposits = state?.id
   ? allDeposits.filter((deposit) => deposit.depositor.id === state.id)

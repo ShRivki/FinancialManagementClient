@@ -14,9 +14,7 @@ const CurrentPendingItems = () => {
 
     useEffect(() => {
         const today = new Date();
-
-        // Filter deposits
-        const deposits = allDeposits.filter(deposit => deposit.status).filter(deposit => new Date(deposit.depositDate) <= today);
+        const deposits = allDeposits.filter(deposit => deposit.status).filter(deposit => new Date(deposit.dateOfMaturity) <= today);
         setFilteredDeposits(deposits);
 
         // Filter loans

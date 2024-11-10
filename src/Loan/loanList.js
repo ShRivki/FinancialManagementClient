@@ -4,26 +4,28 @@ import { getLoans, getInactiveLoans } from '../Services/loanService';
 import { useLocation } from 'react-router-dom';
 import LoanDetails from './loanDetails';
 import SortFilter from '../User/sortFilter';  // שים לב לשם הנכון של הקומפוננטה
-import { Typography, Box, Divider, Checkbox,FormControlLabel } from '@mui/material';
+import { Typography, Box, Divider, Checkbox, FormControlLabel } from '@mui/material';
 import ExportButton from '../exportButton';
 
 const LoansList = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
   const allLoans = useSelector(state => state.Loan.loans);
+  const allInactiveLoans = useSelector(state => state.Loan.InactiveLoans);
   const [sortOrder, setSortOrder] = useState('default');
   const [showInactive, setShowInactive] = useState(true);
   useEffect(() => {
-    if (!state?.loans && !showInactive) {
-      dispatch(getInactiveLoans());
-    }
-    else {
-      dispatch(getLoans());
-    }
-    console.log("l")
-  }, [showInactive,dispatch, state]);
+    // if (!state?.loans && !showInactive) {
+    dispatch(getInactiveLoans());
+    // dispatch(getLoans());
+    // }
+    // else {
+    //   dispatch(getLoans());
+    // }
+    // console.log("l")
+  }, []);
+  const loans = state?.loans ?? (showInactive ? allLoans : allInactiveLoans);
 
-  const loans = state?.loans || allLoans;
   const formatDate = (date) => {
     // ודא שהתאריך הוא אובייקט מסוג Date
     if (!(date instanceof Date)) {
@@ -62,9 +64,9 @@ const LoansList = () => {
 
   return (
     <Box sx={{ p: 2 }}>
-      {!state?.loans&&<FormControlLabel
+      {!state?.loans && <FormControlLabel
         control={<Checkbox checked={showInactive} onChange={() => setShowInactive(!showInactive)} color="primary" />}
-        label={ 'הצג הלוואות פעילות' }
+        label={'הצג הלוואות פעילות'}
       />}
       <SortFilter
         items={loans}

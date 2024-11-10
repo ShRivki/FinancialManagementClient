@@ -57,7 +57,7 @@ const GlobalVariabel = () => {
                     <Box sx={{ p: 2, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 1, textAlign: 'center' }}>
                         <Typography variant="h6" sx={{ mb: 1, color: '#00796b' }}>יתרת קרן</Typography>
                         {totalFundBalance === 0 ? (
-                            <CircularProgress />
+                            <Typography variant="h5">0 ש"ח </Typography> // אם הערך שווה ל-0 מציגים 0
                         ) : (
                             <Typography variant="h5"> ש"ח {formatNumber(displayFundBalance)}</Typography>
                         )}
@@ -67,7 +67,7 @@ const GlobalVariabel = () => {
                     <Box sx={{ p: 2, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 1, textAlign: 'center' }}>
                         <Typography variant="h6" sx={{ mb: 1, color: '#00796b' }}>הלוואות פעילות</Typography>
                         {activeLoans === 0 ? (
-                            <CircularProgress />
+                            <Typography variant="h5">0 ש"ח </Typography> // אם הערך שווה ל-0 מציגים 0
                         ) : (
                             <Typography variant="h5"> ש"ח {formatNumber(displayActiveLoans)}</Typography>
                         )}
@@ -77,14 +77,12 @@ const GlobalVariabel = () => {
                     <Box sx={{ p: 2, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 1, textAlign: 'center' }}>
                         <Typography variant="h6" sx={{ mb: 1, color: '#00796b' }}>ההלוואות שניתנו</Typography>
                         {totalLoansGranted === 0 ? (
-                            <CircularProgress />
+                            <Typography variant="h5"> ש"ח 0</Typography> // אם הערך שווה ל-0 מציגים 0
                         ) : (
                             <Typography variant="h5"> ש"ח {formatNumber(displayTotalLoansGranted)}</Typography>
                         )}
-
                     </Box>
                 </Grid>
-
             </Grid>
         </Box>
     );

@@ -50,7 +50,7 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
                 {renderTextSection('סכום תשלום הבא:', `${monthlyRepayment}`, { color: '#2F4F4F' })}
                 <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" sx={{ color: '#2F4F4F' }}>תאריך תשלום הבא: {nextPaymentDate ? format(new Date(nextPaymentDate), 'dd/MM/yyyy') : 'אין תאריך הבא לתשלום'}</Typography>
-                    <IconButton onClick={() => setEditDate(!editDate)}><EditIcon /></IconButton>
+                    {!isFromGuarantee && ( <IconButton onClick={() => setEditDate(!editDate)}><EditIcon /></IconButton>)}
                 </Box>
                 {editDate && <LoanRepaymentDateUpdate loan={loan} />}
                 {renderTextSection('סכום שנותר לתשלום:', `${remainingAmount} ${currencyOptionsValue[currency]}`, { fontWeight: 'bold', color: '#003366' })}
@@ -72,7 +72,7 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
                     <Typography variant="subtitle1" color="#2F4F4F">הפקדות:</Typography>
                     {depositGuarantee?.length ? depositGuarantee.map((depositUser, index) => (
                         <Typography key={index} variant="body2" sx={{ color: '#2F4F4F' }}>
-                            מפקיד: {depositUser.depositUser.firstName} {depositUser.depositUser.lastName} - מזהה הפקדה: {depositUser.depositUser.id}
+                            מפקיד: {depositUser.depositUser.firstName} {depositUser.depositUser.lastName}  מזהה: {depositUser.depositUser.id}
                         </Typography>
                     )) : <Typography variant="body2" sx={{ color: '#2F4F4F' }}>אין הפקדות</Typography>}
                 </Box> 

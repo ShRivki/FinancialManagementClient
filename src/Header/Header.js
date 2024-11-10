@@ -10,6 +10,7 @@ import AddDeposit from '../Deposit/addDeposit';
 import EmailSender from '../Global/emailSender';
 import SubtractAmount from '../Global/subtractAmount';
 import Settings from '../Global/settings';
+
 const ROUTES = {
     HOME: '/Home',
     USER_LIST: '/UserList',
@@ -23,7 +24,6 @@ const ROUTES = {
 };
 
 const Header = () => {
-
     const navigate = useNavigate();
     const [dialogState, setDialogState] = useState({
         userDialogOpen: false,
@@ -34,6 +34,9 @@ const Header = () => {
         settingsDialogOpen: false,
     });
 
+    const [anchorElLoan, setAnchorElLoan] = useState(null);
+    const [anchorElDeposit, setAnchorElDeposit] = useState(null);
+    const [anchorElDonation, setAnchorElDonation] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleDialogToggle = (dialogName) => {
@@ -43,12 +46,12 @@ const Header = () => {
         }));
     };
 
-    const handleMenuClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleMenuClick = (setAnchorFn) => (event) => {
+        setAnchorFn(event.currentTarget);
     };
 
-    const handleMenuClose = () => {
-        setAnchorEl(null);
+    const handleMenuClose = (setAnchorFn) => () => {
+        setAnchorFn(null);
     };
 
     const renderButton = (variant, color, onClick, text) => (
@@ -82,9 +85,9 @@ const Header = () => {
             </Button>
         </Grid>
     );
+
     const renderDialog = (dialogName, title, ContentComponent) => (
         <Dialog open={dialogState[dialogName]} onClose={() => handleDialogToggle(dialogName)}>
-
             <DialogTitle sx={{ bgcolor: '#004d40', color: '#fff' }}>{title}</DialogTitle>
             <DialogContent>
                 <ContentComponent open={dialogState[dialogName]} handleClose={() => handleDialogToggle(dialogName)} />
@@ -92,36 +95,69 @@ const Header = () => {
         </Dialog>
     );
 
-
     return (
         <Box sx={{ p: 3, bgcolor: '#e3f2fd', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h4" gutterBottom sx={{ mb: 2, color: '#004d40' }}>ניהול כספים חכם</Typography>
             <Grid container spacing={2} justifyContent="center">
                 {renderButton('contained', '#004d40', () => navigate(ROUTES.HOME), <HomeIcon />)}
                 {renderButton('contained', '#00796b', () => navigate(ROUTES.LOG_IN), <LoginIcon />)}
-                {renderOutlinedButton(() => handleDialogToggle('depositDialogOpen'), 'הוספת הפקדה')}
-                {renderOutlinedButton(() => navigate(ROUTES.ADD_LOAN), 'הוספת הלוואה')}
+
+                {/* Loan Menu */}
+                <Grid item>
+                    <Button variant="outlined" onClick={handleMenuClick(setAnchorElLoan)}>הלוואות</Button>
+                    <Menu
+                        anchorEl={anchorElLoan}
+                        open={Boolean(anchorElLoan)}
+                        onClose={handleMenuClose(setAnchorElLoan)}
+                    >
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorElLoan)(); navigate(ROUTES.ADD_LOAN); }}>הוספת הלוואה</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorElLoan)(); navigate(ROUTES.LOAN); }}>צפייה בהלוואות</MenuItem>
+                    </Menu>
+                </Grid>
+
+                {/* Deposit Menu */}
+                <Grid item>
+                    <Button variant="outlined" onClick={handleMenuClick(setAnchorElDeposit)}>הפקדות</Button>
+                    <Menu
+                        anchorEl={anchorElDeposit}
+                        open={Boolean(anchorElDeposit)}
+                        onClose={handleMenuClose(setAnchorElDeposit)}
+                    >
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorElDeposit)(); handleDialogToggle('depositDialogOpen'); }}>הוספת הפקדה</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorElDeposit)(); navigate(ROUTES.DEPOSIT); }}>צפייה בהפקדות</MenuItem>
+                    </Menu>
+                </Grid>
+
+                {/* Donation Menu */}
+                <Grid item>
+                    <Button variant="outlined" onClick={handleMenuClick(setAnchorElDonation)}>תרומות</Button>
+                    <Menu
+                        anchorEl={anchorElDonation}
+                        open={Boolean(anchorElDonation)}
+                        onClose={handleMenuClose(setAnchorElDonation)}
+                    >
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorElDonation)(); handleDialogToggle('donationDialogOpen'); }}>הוספת תרומה</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorElDonation)(); navigate(ROUTES.DONATION); }}>צפייה בתרומות</MenuItem>
+                    </Menu>
+                </Grid>
+
                 {renderOutlinedButton(() => navigate(ROUTES.USER_LIST), 'Users-משתמשים')}
-                {renderOutlinedButton(() => navigate(ROUTES.LOAN), 'Loan-הלוואה')}
-                {renderOutlinedButton(() => navigate(ROUTES.DONATION), 'Donation-תרומות')}
-                {renderOutlinedButton(() => navigate(ROUTES.DEPOSIT), 'DEPOSIT-הפקדות')}
                 {renderOutlinedButton(() => navigate(ROUTES.URRENT_PENDING_ITEMS), 'פעולות עכשיו')}
                 {renderOutlinedButton(() => handleDialogToggle('userDialogOpen'), 'הוספת משתמש')}
-                {renderOutlinedButton(() => handleDialogToggle('donationDialogOpen'), 'הוספת תרומה')}
 
-                {/* Menu Button */}
+                {/* Global Actions Menu */}
                 <Grid item>
-                    <Button variant="outlined" onClick={handleMenuClick}>
+                    <Button variant="outlined" onClick={handleMenuClick(setAnchorEl)}>
                         <MoreVertIcon />
                     </Button>
                     <Menu
                         anchorEl={anchorEl}
                         open={Boolean(anchorEl)}
-                        onClose={handleMenuClose}
+                        onClose={handleMenuClose(setAnchorEl)}
                     >
-                        <MenuItem onClick={() => { handleMenuClose(); handleDialogToggle('sendEmailDialogOpen'); }}>שליחת מייל</MenuItem>
-                        <MenuItem onClick={() => { handleMenuClose(); handleDialogToggle('withdrawAmountDialogOpen'); }}>הורדת סכום</MenuItem>
-                        <MenuItem onClick={() => { handleMenuClose(); handleDialogToggle('settingsDialogOpen'); }}>הגדרות</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('sendEmailDialogOpen'); }}>שליחת מייל</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('withdrawAmountDialogOpen'); }}>הורדת סכום</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('settingsDialogOpen'); }}>הגדרות</MenuItem>
                     </Menu>
                 </Grid>
             </Grid>

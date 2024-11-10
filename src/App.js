@@ -23,11 +23,14 @@ function App() {
   const token = localStorage.getItem('token'); // בדוק אם יש טוקן
 
   useEffect(() => {
-    dispatch(getUsers());
-    dispatch(getDeposits());
-    dispatch(getLoans());
-  }, [dispatch]);
-
+    const fetchData = async () => {
+      await dispatch(getUsers());
+      await dispatch(getDeposits());
+      await dispatch(getLoans());
+    };
+  
+    fetchData();
+  }, []);
   return (
     <div className="App">
       {loading && (

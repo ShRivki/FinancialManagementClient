@@ -9,6 +9,7 @@ export const getDeposits = () => {
         try {
             const res = await axios.get(URL);
             dispatch({ type: actiontype.GET_DEPOSITS, data: res.data });
+            alert("Deposits")
         } catch (error) {
             console.error(error);
         }
@@ -32,6 +33,20 @@ export const addDeposit = (data) => {
             console.error(error);
         } finally {
             dispatch({ type: actiontype.LOADING_END }); // סיום טעינה
+        }
+    }
+}
+export const updateDepositDate = (id, date) => {
+    return async dispatch => {
+        try {
+            dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
+            const res = await axios.put(`${URL}/${id}/repaymentDate/${date}`); // בקשה לשינוי תאריך החזר
+            dispatch({ type: actiontype.REPAYMENT_DEPOSIT, data: res.data }); // עדכון ה-state עם התוצאה
+            alert('תאריך ההחזר ההפקדה עודכן בהצלחה');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            dispatch(actiontype.endLoading()); // סיום מצב טעינה
         }
     }
 }

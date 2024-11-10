@@ -40,10 +40,10 @@ export const getUsers = () => {
     try {
       const res = await axios.get(`${URL}/User`);
       dispatch({ type: actiontype.GET_USERS, data: res.data });
+      alert("users")
     } catch (error) {
       console.error(error);
     }
-    alert("m")
   }
 }
 export const addUser = (data) => {
@@ -68,6 +68,7 @@ export const editUser = (data) => {
       dispatch(actiontype.startLoading());
       const res = await axios.put(`${URL}/User/${data.id}`, { ...data });
       dispatch({ type: actiontype.EDIT_USER, data: res.data });
+      
 
     } catch (error) {
       console.error(error);

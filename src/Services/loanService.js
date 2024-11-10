@@ -9,7 +9,7 @@ export const getLoans = () => {
             //dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.get(URL);
             dispatch({ type: actiontype.GET_LOANS, data: res.data });
-            // console.log(res.data)
+            alert("loans")
         } catch (error) {
             console.error(error);
         }
@@ -38,7 +38,7 @@ export const getInactiveLoans = () => {
         try {
             //dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.get(`${URL}/Inactive`);
-            dispatch({ type: actiontype.GET_LOANS, data: res.data });
+            dispatch({ type: actiontype.GET_INACTIVE_LOANS, data: res.data });
             // console.log(res.data)
         } catch (error) {
             console.error(error);
