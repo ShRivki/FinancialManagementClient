@@ -1,14 +1,15 @@
-import { configure } from '@testing-library/react';
 import * as actiontype from './actions'
-import { CleaningServices } from '@mui/icons-material';
 const initialState = {
-    deposits: []
+    deposits: [],
+    inactiveDeposits:[]
 }
 const depositsReducer = (state = initialState, action) => {
     switch (action.type) {
         case actiontype.GET_DEPOSITS: {
             return { ...state, deposits: action.data };
         }
+        case actiontype.GET_INACTIVE_DEPOSITS:
+            return { ...state, inactiveDeposits: action.data };
         case actiontype.ADD_DEPOSIT: {
             const deposits = [...state.deposits];
             deposits.push(action.data);

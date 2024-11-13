@@ -1,26 +1,29 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getDeposits } from '../Services/depositService';
+import { getDeposits, getInactiveDeposits } from '../Services/depositService';
 import { useLocation } from 'react-router-dom';
 import DepositDetails from './depositDetails';
-import SortFilter from '../User/sortFilter'; // Import the SortFilter component
-import { Typography, Box, Divider } from '@mui/material';
+import SortFilter from '../User/sortFilter'; 
+import { Typography, Box, Divider, FormControlLabel, Checkbox } from '@mui/material';
 import ExportButton from '../exportButton';
 const DepositsList = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
   const allDeposits = useSelector((state) => state.Deposits.deposits);
-
-  // useEffect(() => {
-  //     dispatch(getDeposits());
-  //   console.log(deposits);
-  //   console.log(state)
-  // }, [dispatch, state]);
-
+  const allInactiveDeposits = useSelector((state) => state.Deposits.inactiveDeposits);
+  const [showInactive, setShowInactive] = useState(true);
+  useEffect(() => {
+    const fetchData = async () => {
+      await dispatch(getDeposits());
+      await dispatch(getInactiveDeposits());
+    };
+    fetchData();
+  }, [dispatch]);
   const deposits = state?.id
-  ? allDeposits.filter((deposit) => deposit.depositor.id === state.id)
-  : allDeposits;
-
+    ? allDeposits.filter((deposit) => deposit.depositor.id === state.id)
+    : showInactive === false
+      ? allInactiveDeposits
+      : allDeposits;
   const sortFunctions = {
     amountAsc: (a, b) => a.amount - b.amount,
     amountDesc: (a, b) => b.amount - a.amount,
@@ -41,7 +44,7 @@ const DepositsList = () => {
     { value: 'nameDesc', label: 'שם (ת–א)' },
     { value: 'repaymentDateAsc', label: 'תאריך פרעון (הקדום המאוחר)' },
     { value: 'repaymentDateDesc', label: 'תאריך פרעון (המאוחר להקדום)' },
-];
+  ];
 
 
   const handleSortChange = (newSortOrder) => {
@@ -49,12 +52,21 @@ const DepositsList = () => {
   };
 
   if (!deposits || deposits.length === 0) {
-    return <Typography variant="h6" align="center" sx={{ mt: 4 }}>No deposits available</Typography>;
+    return <Box sx={{ p: 2 }}>
+    {!state?.loans && <FormControlLabel
+      control={<Checkbox checked={showInactive} onChange={() => setShowInactive(!showInactive)} color="primary" />}
+      label={'הצג הפקדות פעילות'}
+    />}<Typography variant="h6" align="center" sx={{ mt: 4 }}>No deposits available</Typography>
+    </Box>
   }
 
   return (
+
     <Box sx={{ p: 2 }}>
-      
+      {!state?.loans && <FormControlLabel
+        control={<Checkbox checked={showInactive} onChange={() => setShowInactive(!showInactive)} color="primary" />}
+        label={'הצג הפקדות פעילות'}
+      />}
       <SortFilter
         items={deposits}
         sortOrder={'default'}
@@ -64,7 +76,7 @@ const DepositsList = () => {
       >
         {(sortedDeposits) => (
           <>
-          <ExportButton
+            <ExportButton
               data={sortedDeposits.map(donation => ({
                 'Name': donation.depositor.firstName + ' ' + donation.depositor.lastName,
                 'ID': donation.depositor.identity,
@@ -75,7 +87,7 @@ const DepositsList = () => {
                 'Status': donation.status ? 'Active' : 'Inactive',
               }))}
               fileName={`DonationsList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
-              />
+            />
             <Divider sx={{ mb: 2 }} />
             {sortedDeposits.map((deposit, index) => (
               <DepositDetails key={index} deposit={deposit} />

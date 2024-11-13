@@ -17,7 +17,7 @@ const DonationsList = () => {
     if (!state?.donations) {
       dispatch(getDonations());
     }
-  }, [dispatch, state]);
+  }, []);
 
   const donations = state?.donations || allDonations;
 

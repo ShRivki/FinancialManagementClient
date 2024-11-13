@@ -3,13 +3,13 @@ import axios from "axios";
 
 const URL = 'https://localhost:7030/api/Deposit';
 
+
 export const getDeposits = () => {
     return async dispatch => {
         // dispatch({ type: actiontype.LOADING_START }); // התחלת טעינה
         try {
             const res = await axios.get(URL);
             dispatch({ type: actiontype.GET_DEPOSITS, data: res.data });
-            alert("Deposits")
         } catch (error) {
             console.error(error);
         }
@@ -18,6 +18,21 @@ export const getDeposits = () => {
         // }
     }
 }
+export const getInactiveDeposits = () => {
+    return async dispatch => {
+        // dispatch({ type: actiontype.LOADING_START }); // התחלת טעינה
+        try {
+            const res = await axios.get(`${URL}?active=false`);
+            dispatch({ type: actiontype.GET_INACTIVE_DEPOSITS, data: res.data });
+        } catch (error) {
+            console.error(error);
+        }
+        //  finally {
+        //     dispatch({ type: actiontype.LOADING_END }); // סיום טעינה
+        // }
+    }
+}
+
 
 export const addDeposit = (data) => {
     return async dispatch => {
@@ -39,21 +54,21 @@ export const addDeposit = (data) => {
 export const updateDepositDate = (id, date) => {
     return async dispatch => {
         try {
-            dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
+            dispatch(actiontype.startLoading());
             const res = await axios.put(`${URL}/${id}/repaymentDate/${date}`); // בקשה לשינוי תאריך החזר
             dispatch({ type: actiontype.REPAYMENT_DEPOSIT, data: res.data }); // עדכון ה-state עם התוצאה
             alert('תאריך ההחזר ההפקדה עודכן בהצלחה');
         } catch (error) {
             console.error(error);
         } finally {
-            dispatch(actiontype.endLoading()); // סיום מצב טעינה
+            dispatch(actiontype.endLoading()); 
         }
     }
 }
 
 export const repaymentDeposit = (id, repaymentAmount) => {
     return async dispatch => {
-        dispatch({ type: actiontype.LOADING_START }); // התחלת טעינה
+        dispatch({ type: actiontype.LOADING_START });
         try {
             
             const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}`);

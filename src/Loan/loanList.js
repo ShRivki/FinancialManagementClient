@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getLoans, getInactiveLoans } from '../Services/loanService';
 import { useLocation } from 'react-router-dom';
 import LoanDetails from './loanDetails';
-import SortFilter from '../User/sortFilter';  // שים לב לשם הנכון של הקומפוננטה
+import SortFilter from '../User/sortFilter';
 import { Typography, Box, Divider, Checkbox, FormControlLabel } from '@mui/material';
 import ExportButton from '../exportButton';
 
@@ -11,29 +11,25 @@ const LoansList = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
   const allLoans = useSelector(state => state.Loan.loans);
-  const allInactiveLoans = useSelector(state => state.Loan.InactiveLoans);
+  const allInactiveLoans = useSelector(state => state.Loan.inactiveLoans);
   const [sortOrder, setSortOrder] = useState('default');
   const [showInactive, setShowInactive] = useState(true);
   useEffect(() => {
-    // if (!state?.loans && !showInactive) {
-    dispatch(getInactiveLoans());
-    // dispatch(getLoans());
-    // }
-    // else {
-    //   dispatch(getLoans());
-    // }
-    // console.log("l")
+    const fetchData = async () => {
+      await dispatch(getInactiveLoans());
+      await dispatch(getLoans());
+    };
+  
+    fetchData();
   }, []);
   const loans = state?.loans ?? (showInactive ? allLoans : allInactiveLoans);
 
   const formatDate = (date) => {
-    // ודא שהתאריך הוא אובייקט מסוג Date
     if (!(date instanceof Date)) {
       date = new Date(date);
     }
-    return date.toLocaleDateString('he-IL'); // פורמט תאריך בעברית
+    return date.toLocaleDateString('he-IL'); 
   }
-  // Define your sort functions
   const sortFunctions = {
     amountAsc: (a, b) => a.amount - b.amount,
     amountDesc: (a, b) => b.amount - a.amount,
@@ -44,8 +40,6 @@ const LoansList = () => {
     nameAsc: (a, b) => a.borrower.firstName.localeCompare(b.borrower.firstName),
     nameDesc: (a, b) => b.borrower.firstName.localeCompare(a.borrower.firstName),
   };
-
-  // Define your sort options
   const sortOptions = [
     { value: 'default', label: 'ברירת מחדל' },
     { value: 'amountAsc', label: 'סכום (מנמוך לגבוה)' },
@@ -98,7 +92,7 @@ const LoansList = () => {
             />
             <Divider sx={{ mb: 2 }} />
             {sortedItems.length === 0
-              ? <Typography variant="h6" align="center" sx={{ mt: 4 }}>No Loans available</Typography>
+              ? <Typography variant="h6" align="center" sx={{ mt: 4 }}>אין הלוואות</Typography>
               : sortedItems.map((loan, index) => (
                 loan ? <LoanDetails key={index} loan={loan} /> : null
               ))

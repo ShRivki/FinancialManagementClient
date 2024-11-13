@@ -1,8 +1,6 @@
 
-import { date } from 'yup';
 import * as actiontype from '../Store/actions'
 import axios from "axios";
-import { alertClasses } from '@mui/material';
 
 const URL = 'https://localhost:7030/api';
 
@@ -40,7 +38,6 @@ export const getUsers = () => {
     try {
       const res = await axios.get(`${URL}/User`);
       dispatch({ type: actiontype.GET_USERS, data: res.data });
-      alert("users")
     } catch (error) {
       console.error(error);
     }
@@ -81,7 +78,7 @@ export const editUser = (data) => {
 export const fetchDepositGuaranteeAmount = async(userId) => {
   
     try {
-      var res= await axios.get(`${URL}/User/${userId}/BalancetGuaranteeAmount`);
+      var res= await axios.get(`${URL}/User/${userId}/BalanceGuaranteeAmount`);
       return res.data;
 
     } catch (error) {

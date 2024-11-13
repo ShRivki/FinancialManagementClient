@@ -102,7 +102,7 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
                             options={fundraiserOptions}
                             getOptionLabel={(option) => option.label}
                             onChange={(event, newValue) => {
-                                setSelectedFundraiser(newValue?.value || "");
+                                setSelectedFundraiser(newValue?.value || 0);
                             }}
                             renderInput={(params) => (
                                 <TextField {...params} label="מתרים" variant="outlined" fullWidth error={!!errors.fundraiser} helperText={errors.fundraiser?.message} sx={{ mb: 2 }} />

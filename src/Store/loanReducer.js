@@ -2,7 +2,7 @@ import * as actiontype from './actions';
 
 const initialState = {
     loans: [],
-    InactiveLoans: []
+    inactiveLoans: []
 
 };
 
@@ -11,7 +11,7 @@ const loansReducer = (state = initialState, action) => {
         case actiontype.GET_LOANS:
             return { ...state, loans: action.data };
         case actiontype.GET_INACTIVE_LOANS:
-            return { ...state, InactiveLoans: action.data };
+            return { ...state, inactiveLoans: action.data };
         case actiontype.ADD_LOAN:
             return { ...state, loans: [...state.loans, action.data] };
 

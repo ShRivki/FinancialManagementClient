@@ -16,7 +16,6 @@ const initialState = {
 };
 const updateBalance = (state, amount, currency) => {
     const updatedState = { ...state };
-
     // מיפוי של סוגי המטבעות לשדות המתאימים ולשערי החליפין
     const currencyMappings = {
         0: { key: 'totalFundBalanceILS', rate: 1 }, // ILS
@@ -52,11 +51,7 @@ const globalReducer = (state = initialState, action) => {
             return { ...state, totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR };
         }
         case actiontype.SUB_BALANCE:
-            return {
-                ...state,
-                totalFundBalance: state.totalFundBalance - action.data,
-                totalFundBalanceILS: state.totalFundBalanceILS - action.data
-            };
+            return updateBalance(state, -action.data, action.currency);
         case actiontype.ADD_DEPOSIT: {
             return updateBalance(state, action.data.amount, action.data.currency);
         }

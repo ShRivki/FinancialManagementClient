@@ -2,16 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, Grid } from '@mui/material';
 import DepositDetails from '../Deposit/depositDetails';
 import LoanDetails from '../Loan/loanDetails';
-import { useSelector } from 'react-redux';
+import { getLoans } from '../Services/loanService';
+import { getDeposits } from '../Services/depositService';
+import { useDispatch, useSelector } from 'react-redux';
 
 const CurrentPendingItems = () => {
     const [loading, setLoading] = useState(true);
     const [filteredDeposits, setFilteredDeposits] = useState([]);
     const [filteredLoans, setFilteredLoans] = useState([]);
-
+    const dispatch = useDispatch();
     const allDeposits = useSelector((state) => state.Deposits.deposits);
     const allLoans = useSelector((state) => state.Loan.loans);
+    useEffect(() => {
+        const fetchData = async () => {
+            await dispatch(getDeposits());
+            await dispatch(getLoans());
+        };
 
+        fetchData();
+    }, []);
     useEffect(() => {
         const today = new Date();
         const deposits = allDeposits.filter(deposit => deposit.status).filter(deposit => new Date(deposit.dateOfMaturity) <= today);
