@@ -16,13 +16,14 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
 
     if (!loan) return <Typography variant="h6" align="center" sx={{ mt: 4, color: '#2F4F4F' }}>Loan data is missing</Typography>;
 
-    const { id, borrower, amount, loanDate, status, guarantees, currentPayment, totalPayments, remainingAmount, monthlyRepayment, currency, paymentMethods, depositGuarantee, nextPaymentDate } = loan;
+    const { id, borrower, amount, loanDate, status, guarantees, currentPayment, totalPayments, remainingAmount, monthlyRepayment, currency, paymentMethods, depositGuarantee, nextPaymentDate ,frequency} = loan;
 
     const handleRepayment = () => {
         if (repaymentAmount <= loan.remainingAmount) {
             const amountToRepay = repaymentAmount || monthlyRepayment;
             dispatch(repaymentLoan(id, parseFloat(amountToRepay)));
             setRepaymentAmount('');
+            console.log(loan)
         } else alert('סכום שגוי');
     };
 
@@ -55,9 +56,11 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
                 {editDate && <LoanRepaymentDateUpdate loan={loan} />}
                 {renderTextSection('סכום שנותר לתשלום:', `${remainingAmount} ${currencyOptionsValue[currency]}`, { fontWeight: 'bold', color: '#003366' })}
                 {renderTextSection('תאריך יצירת הלוואה:', loanDate ? format(new Date(loanDate), 'dd/MM/yyyy') : 'אין תאריך פרעון', { color: '#2F4F4F' })}
+                {renderTextSection('תדירות:', `${frequency}`, { color: '#2F4F4F' })}
                 {renderTextSection('תשלומים:', `${currentPayment}/${totalPayments}`, { color: '#2F4F4F' })}
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל', { color: status ? '#003366' : '#2F4F4F' })}
                 {renderTextSection('שיטות תשלום:', getPaymentMethodsDisplay(paymentMethods), { color: '#2F4F4F' })}
+                
                 
                 <Box sx={{ mb: 2 }}>
                     <Typography variant="subtitle1" color="#2F4F4F">ערבים:</Typography>

@@ -30,8 +30,7 @@ const CurrentPendingItems = () => {
         const loans = allLoans
             .filter(loan => loan.status) // Active loans only
             .filter(loan => {
-                const nextPaymentDate = new Date(loan.repaymentDate);
-                nextPaymentDate.setMonth(nextPaymentDate.getMonth() + loan.frequency * loan.currentPayment);
+                const nextPaymentDate = new Date(loan.nextPaymentDate);
                 return nextPaymentDate <= today;
             });
         setFilteredLoans(loans);

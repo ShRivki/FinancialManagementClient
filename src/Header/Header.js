@@ -10,6 +10,7 @@ import AddDeposit from '../Deposit/addDeposit';
 import EmailSender from '../Global/emailSender';
 import SubtractAmount from '../Global/subtractAmount';
 import Settings from '../Global/settings';
+import DateCalculation from '../Global/dateCalculation'
 
 const ROUTES = {
     HOME: '/Home',
@@ -32,6 +33,7 @@ const Header = () => {
         sendEmailDialogOpen: false,
         withdrawAmountDialogOpen: false,
         settingsDialogOpen: false,
+        dateCalculationDialogOpen:false
     });
 
     const [anchorElLoan, setAnchorElLoan] = useState(null);
@@ -141,7 +143,7 @@ const Header = () => {
                     </Menu>
                 </Grid>
 
-                {renderOutlinedButton(() => navigate(ROUTES.USER_LIST), 'Users-משתמשים')}
+                {renderOutlinedButton(() => navigate(ROUTES.USER_LIST), 'משתמשים')}
                 {renderOutlinedButton(() => navigate(ROUTES.URRENT_PENDING_ITEMS), 'פעולות עכשיו')}
                 {renderOutlinedButton(() => handleDialogToggle('userDialogOpen'), 'הוספת משתמש')}
 
@@ -157,6 +159,7 @@ const Header = () => {
                     >
                         <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('sendEmailDialogOpen'); }}>שליחת מייל</MenuItem>
                         <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('withdrawAmountDialogOpen'); }}>הורדת סכום</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('dateCalculationDialogOpen'); }}>חישוב יתרה</MenuItem>
                         <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('settingsDialogOpen'); }}>הגדרות</MenuItem>
                     </Menu>
                 </Grid>
@@ -169,6 +172,7 @@ const Header = () => {
             {renderDialog('sendEmailDialogOpen', 'שליחת מייל', EmailSender)}
             {renderDialog('withdrawAmountDialogOpen', 'הורדת סכום', SubtractAmount)}
             {renderDialog('settingsDialogOpen', 'הגדרות', Settings)}
+            {renderDialog('dateCalculationDialogOpen', 'חישוב יתרה לפי תאריך', DateCalculation)}
         </Box>
     );
 };

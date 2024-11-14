@@ -36,4 +36,4 @@ export const paymentMethodsOptionsValue = {
 }
 
 
-export const URL = 'https://localhost:7030/api/'
+export const BASIC_URL = 'https://localhost:7030/api'

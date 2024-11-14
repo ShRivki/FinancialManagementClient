@@ -91,7 +91,7 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
 
     return (
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>{initialValues.identity ? "Update User" : "Add User"}</DialogTitle>
+            <DialogTitle>{initialValues.identity ? "עדכון משתמש" : "הוספת משתמש"}</DialogTitle>
             <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 600, margin: '0 auto' }}>
                 <DialogContent>
                     <TextField label="תעודת זהות" variant="outlined" fullWidth {...register("identity")} sx={{ mb: 2 }}  disabled={!!initialValues.id} />
@@ -123,7 +123,7 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
                         Cancel
                     </Button>
                     <Button type="submit" variant="contained" color="primary" disabled={!isValid}>
-                        {initialValues.identity ? "Update User" : "Add User"}
+                        {initialValues.identity ? "עדכון" : "הוספה"}
                     </Button>
                 </DialogActions>
             </form>

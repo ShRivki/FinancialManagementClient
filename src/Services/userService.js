@@ -1,8 +1,8 @@
 
 import * as actiontype from '../Store/actions'
 import axios from "axios";
-
-const URL = 'https://localhost:7030/api';
+import {BASIC_URL} from '../constants.js'
+// const URL = 'https://localhost:7030/api';
 
 axios.interceptors.request.use(
   config => {
@@ -18,7 +18,7 @@ axios.interceptors.request.use(
 );
 export const logIn = async (data, navigate) => {
   try {
-    const response = await axios.post(`${URL}/LogIn`, { userName: data.UserName, password: data.Password });
+    const response = await axios.post(`${BASIC_URL}/LogIn`, { userName: data.UserName, password: data.Password });
     localStorage.setItem('token', response.data.token);
     alert('`Logged` in successfully');
     navigate('/Home');
@@ -36,7 +36,7 @@ export const logOut = (navigate) => {
 export const getUsers = () => {
   return async dispatch => {
     try {
-      const res = await axios.get(`${URL}/User`);
+      const res = await axios.get(`${BASIC_URL}/User`);
       dispatch({ type: actiontype.GET_USERS, data: res.data });
     } catch (error) {
       console.error(error);
@@ -47,7 +47,7 @@ export const addUser = (data) => {
   return async dispatch => {
     try {
       dispatch(actiontype.startLoading());
-      const res = await axios.post(`${URL}/User`, data);
+      const res = await axios.post(`${BASIC_URL}/User`, data);
       console.log(res.data);
       dispatch({ type: actiontype.ADD_USER, data: res.data });
     } catch (error) {
@@ -63,7 +63,7 @@ export const editUser = (data) => {
   return async dispatch => {
     try {
       dispatch(actiontype.startLoading());
-      const res = await axios.put(`${URL}/User/${data.id}`, { ...data });
+      const res = await axios.put(`${BASIC_URL}/User/${data.id}`, { ...data });
       dispatch({ type: actiontype.EDIT_USER, data: res.data });
       
 
@@ -78,7 +78,7 @@ export const editUser = (data) => {
 export const fetchDepositGuaranteeAmount = async(userId) => {
   
     try {
-      var res= await axios.get(`${URL}/User/${userId}/BalanceGuaranteeAmount`);
+      var res= await axios.get(`${BASIC_URL}/User/${userId}/BalanceGuaranteeAmount`);
       return res.data;
 
     } catch (error) {
@@ -89,7 +89,7 @@ export const fetchDepositGuaranteeAmount = async(userId) => {
   export const getGuaranteeAmount = async(userId) => {
   
     try {
-      var res= await axios.get(`${URL}/User/${userId}/GuaranteeAmount`);
+      var res= await axios.get(`${BASIC_URL}/User/${userId}/GuaranteeAmount`);
       return res.data;
 
     } catch (error) {

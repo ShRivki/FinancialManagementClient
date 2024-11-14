@@ -19,7 +19,14 @@ const GlobalVariabel = () => {
     useEffect(() => {
         dispatch(getGlobalVariables());
     }, [dispatch]);
-
+    const renderCurrencyBox = (title, amount, symbol) => (
+        <Grid item xs={12} sm={3}>
+            <Box sx={{ p: 2, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 1, textAlign: 'center' }}>
+                <Typography variant="h6" sx={{ mb: 1, color: '#00796b' }}>{title}</Typography>
+                <Typography variant="h5">{amount} {symbol}</Typography>
+            </Box>
+        </Grid>
+    );
     useEffect(() => {
         const animateValue = (setter, value) => {
             let start = 0;
@@ -48,10 +55,12 @@ const GlobalVariabel = () => {
     return (
         <Box sx={{ flexGrow: 1, p: 2, bgcolor: '#e3f2fd', borderRadius: 2, boxShadow: 3 }}>
             <Typography variant="h5" sx={{ mb: 2, color: '#004d40', textAlign: 'center' }}>מידע גלובלי</Typography>
-            <div>{totalFundBalanceILS} ₪</div>
-            <div>{totalFundBalanceUSD} $</div>
-            <div>{totalFundBalanceGBP} £</div>
-            <div>{totalFundBalanceEUR} €</div>
+            <Grid container spacing={2} justifyContent="center" sx={{ mb: 2 }}>
+                {renderCurrencyBox("יתרת קרן בש\"ח", totalFundBalanceILS, "₪")}
+                {renderCurrencyBox("יתרת קרן בדולר", totalFundBalanceUSD, "$")}
+                {renderCurrencyBox("יתרת קרן בפאונד", totalFundBalanceGBP, "£")}
+                {renderCurrencyBox("יתרת קרן ביורו", totalFundBalanceEUR, "€")}
+            </Grid>
             <Grid container spacing={3} justifyContent="center">
                 <Grid item xs={12} sm={4}>
                     <Box sx={{ p: 2, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 1, textAlign: 'center' }}>

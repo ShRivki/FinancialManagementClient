@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { URL } from '../constants.js';
+import { BASIC_URL } from '../constants.js';
 import { useDispatch } from 'react-redux';
 import {setCurrencyRates}from '../Store/actions';
 const CurrencyRates = () => {
@@ -12,7 +12,7 @@ const CurrencyRates = () => {
     useEffect(() => {
         const fetchRates = async () => {
             try {
-                const response = await axios.get(`${URL}GlobalVariables/rates`);
+                const response = await axios.get(`${BASIC_URL}/GlobalVariables/rates`);
                 const data = response.data;
                 setRates(data);
                 dispatch(setCurrencyRates(data)); // Dispatch ל-redux את הנתונים

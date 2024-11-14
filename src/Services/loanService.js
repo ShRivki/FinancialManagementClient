@@ -96,6 +96,7 @@ export const repaymentLoan = (id, repaymentAmount) => {
 export const editLoan = (data, id, navigate) => {
     return async dispatch => {
         try {
+            
             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.put(`${URL}/${id}`, { ...data });
             dispatch({ type: actiontype.EDIT_LOAN, data: res.data });
