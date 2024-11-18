@@ -1,8 +1,9 @@
 import * as actiontype from '../Store/actions'
 import axios from "axios";
+import {currencyOptionsValue}from '../constants'
+import { BASIC_URL } from '../constants';
 
-
-const URL = 'https://localhost:7030/api/GlobalVariables';
+const URL = `${BASIC_URL}/GlobalVariables`;
 
 export const getGlobalVariables = () => {
     return async dispatch => {
@@ -18,7 +19,12 @@ export const getGlobalVariables = () => {
 export const subBalance = (operatingExpenses,currency) => {
     return async dispatch => {
         try {
-            const res = await axios.put(`${URL}/${operatingExpenses}/${currency}`);
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוריד סכום בסך ${operatingExpenses} ${currencyOptionsValue[currency]}?`);
+            if (!userConfirmation) {
+                // אם המשתמש לוחץ על ביטול - סיום הפעולה
+                return;
+            }
+            await axios.put(`${URL}/${operatingExpenses}/${currency}`);
             dispatch({ type: actiontype.SUB_BALANCE, data: operatingExpenses,currency:currency });
         } catch (error) {
             console.error(error);

@@ -66,7 +66,7 @@ const UserList = () => {
   return (
     <Box sx={{ marginTop: 4, width: '85%', mx: 'auto' }}>
       <Box sx={{ mb: 2, width: '15%' }}>
-        <TextField label="חיפוש לפי שם, מייל או כתובת" variant="outlined" fullWidth onChange={(e) => {setSearchTerm(e.target.value);setPage(0); }}  value={searchTerm}
+        <TextField label="...חיפוש" variant="outlined" fullWidth onChange={(e) => {setSearchTerm(e.target.value);setPage(0); }}  value={searchTerm}
         />
       </Box>
       <Box sx={{ mb: 2, textAlign: 'right' }}>

@@ -1,7 +1,7 @@
 
 import * as actiontype from '../Store/actions'
 import axios from "axios";
-import {BASIC_URL} from '../constants.js'
+import { BASIC_URL } from '../constants.js'
 // const URL = 'https://localhost:7030/api';
 
 axios.interceptors.request.use(
@@ -20,7 +20,8 @@ export const logIn = async (data, navigate) => {
   try {
     const response = await axios.post(`${BASIC_URL}/LogIn`, { userName: data.UserName, password: data.Password });
     localStorage.setItem('token', response.data.token);
-    alert('`Logged` in successfully');
+    alert('התחברת בהצלחה');
+    console.log(response.data.token)
     navigate('/Home');
   } catch (error) {
     alert('Login error');
@@ -46,9 +47,12 @@ export const getUsers = () => {
 export const addUser = (data) => {
   return async dispatch => {
     try {
+      const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף משתמש חדש בשם  ${data.firstName} ${[data.lastName]} ?`);
+      if (!userConfirmation) {
+        return;
+      }
       dispatch(actiontype.startLoading());
       const res = await axios.post(`${BASIC_URL}/User`, data);
-      console.log(res.data);
       dispatch({ type: actiontype.ADD_USER, data: res.data });
     } catch (error) {
       console.error(error);
@@ -59,13 +63,16 @@ export const addUser = (data) => {
   }
 }
 export const editUser = (data) => {
-  console.log(data);
   return async dispatch => {
     try {
+      const userConfirmation = window.confirm(`האם אתה בטוח שברצונך לערוך משתמש ${data.identity} ?`);
+      if (!userConfirmation) {
+        return;
+      }
       dispatch(actiontype.startLoading());
       const res = await axios.put(`${BASIC_URL}/User/${data.id}`, { ...data });
       dispatch({ type: actiontype.EDIT_USER, data: res.data });
-      
+
 
     } catch (error) {
       console.error(error);
@@ -75,28 +82,28 @@ export const editUser = (data) => {
     }
   }
 }
-export const fetchDepositGuaranteeAmount = async(userId) => {
-  
-    try {
-      var res= await axios.get(`${BASIC_URL}/User/${userId}/BalanceGuaranteeAmount`);
-      return res.data;
+export const fetchDepositGuaranteeAmount = async (userId) => {
 
-    } catch (error) {
-      console.error("Error fetching deposit guarantee amount:", error);
-      return null;
-    } 
-  }
-  export const getGuaranteeAmount = async(userId) => {
-  
-    try {
-      var res= await axios.get(`${BASIC_URL}/User/${userId}/GuaranteeAmount`);
-      return res.data;
+  try {
+    var res = await axios.get(`${BASIC_URL}/User/${userId}/BalanceGuaranteeAmount`);
+    return res.data;
 
-    } catch (error) {
-      console.error("Error fetching deposit guarantee amount:", error);
-      return null;
-    } 
+  } catch (error) {
+    console.error("Error fetching deposit guarantee amount:", error);
+    return null;
   }
+}
+export const getGuaranteeAmount = async (userId) => {
+
+  try {
+    var res = await axios.get(`${BASIC_URL}/User/${userId}/GuaranteeAmount`);
+    return res.data;
+
+  } catch (error) {
+    console.error("Error fetching deposit guarantee amount:", error);
+    return null;
+  }
+}
 //   export const fetchDepositGuaranteeAmount = (users, navigate) => {
 //     return async dispatch => {
 //         try {

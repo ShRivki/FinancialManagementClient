@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, CircularProgress } from '@mui/material';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import Header from './Header/Header.js';
 import LogIn from './User/logIn.js';
+import { jwtDecode } from 'jwt-decode';
 import UserList from './User/userList.js';
 import DonationsList from './Donation/donationList.js';
 import AddDonation from './Donation/addDonation.js';
@@ -20,17 +21,41 @@ import { getLoans } from './Services/loanService.js';
 function App() {
   const loading = useSelector(state => state.Loading.loading);
   const dispatch = useDispatch();
-  const token = localStorage.getItem('token'); // בדוק אם יש טוקן
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
     const fetchData = async () => {
       await dispatch(getUsers());
-      await dispatch(getDeposits());
       await dispatch(getLoans());
+      await dispatch(getDeposits());
+      console.log("finish")
     };
-  
+
     fetchData();
   }, []);
+  // useEffect(() => {
+  //   const checkTokenValidity = () => {
+  //     if (token) {
+  //       const decodedToken = jwtDecode(token);
+  //       const currentTime = Date.now() / 1000; // הזמן הנוכחי בשניות
+  //       if (decodedToken.exp && decodedToken.exp < currentTime) {
+  //         alert('הטוקן פג תוקף');
+  //         setToken(null);
+  //         window.location.href = '/'; // ניתוב מחדש לדף ההתחברות
+  //       }
+  //     }
+  //     if (!token)
+  //       setToken(localStorage.getItem('token'))
+  //   };
+
+  //   checkTokenValidity();
+
+  //   // בדיקה מחזורית כל 5 דקות (ניתן לשנות)
+  //   const interval = setInterval(checkTokenValidity, 300000);
+
+  //   return () => clearInterval(interval);
+  // }, [token]);
+
   return (
     <div className="App">
       {loading && (
@@ -38,7 +63,7 @@ function App() {
           <CircularProgress />
         </Box>
       )}
-      
+
       <Header />
       <Routes>
         <Route path="/" element={<LogIn />} />

@@ -1,7 +1,8 @@
 import * as actiontype from '../Store/actions'
 import axios from "axios";
-
-const URL = 'https://localhost:7030/api/Loan';
+import { BASIC_URL } from '../constants';
+import{currencyOptionsValue} from '../constants'
+const URL = `${BASIC_URL}/Loan`;
 
 export const getLoans = () => {
     return async dispatch => {
@@ -20,6 +21,10 @@ export const getLoans = () => {
 export const updateRepaymentDate = (id, date) => {
     return async dispatch => {
         try {
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך לשנות תאריך הבא להחזר הלוואה ל ${date} ?`);
+            if (!userConfirmation) {
+                return;
+            }
             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.put(`${URL}/${id}/repaymentDate/${date}`); // בקשה לשינוי תאריך החזר
             dispatch({ type: actiontype.EDIT_LOAN, data: res.data }); // עדכון ה-state עם התוצאה
@@ -60,6 +65,11 @@ export const getLoansByDate = async (untilDate) => {
 export const addLoan = (data, navigate) => {
     return async dispatch => {
         try {
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף הלוואה על סך ${data.amount} ${currencyOptionsValue[data.currency]}?`);
+            if (!userConfirmation) {
+                // אם המשתמש לוחץ על ביטול - סיום הפעולה
+                return;
+            }
             console.log(data)
             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.post(URL, { ...data });
@@ -77,6 +87,10 @@ export const addLoan = (data, navigate) => {
 export const repaymentLoan = (id, repaymentAmount) => {
     return async dispatch => {
         try {
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך לבצע החזר הלוואה על סך: ${repaymentAmount} ?`);
+            if (!userConfirmation) {
+                return;
+            }
             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const url = repaymentAmount
                 ? `${URL}/${id}?repaymentAmount=${repaymentAmount}`

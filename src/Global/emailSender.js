@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import * as actiontype from '../Store/actions'
+import { useDispatch, useSelector } from 'react-redux';
 
 const EmailSender = () => {
+    const dispatch = useDispatch();
     const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('');
     const [sendToAll, setSendToAll] = useState(false); // מצב ל-send to all
     const users = useSelector(state => state.User.users);
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     // אופציות של משתמשים כולל מידע נוסף עבור סינון והצגה
     const userOptions = users.map(user => ({
         label: `${user.firstName} ${user.lastName} - ${user.email}`,
@@ -23,7 +25,7 @@ const EmailSender = () => {
     // פונקציה לסינון אפשרויות על פי שם פרטי, שם משפחה או מייל
     const filterOptions = (options, { inputValue }) => {
         const lowerInput = inputValue.toLowerCase();
-        return options.filter(option => 
+        return options.filter(option =>
             option.firstName.toLowerCase().includes(lowerInput) ||
             option.lastName.toLowerCase().includes(lowerInput) ||
             option.email.toLowerCase().includes(lowerInput)
@@ -32,16 +34,17 @@ const EmailSender = () => {
 
     const onSubmit = async (data) => {
         try {
+            dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const emailData = {
                 subject: data.subject,
                 body: data.body,
                 // בודק אם יש לשלוח לכולם, ואם כן, מוסיף את הכתובות כעותק מוסתר
                 ...(sendToAll ? { ToEmails: users.map(user => user.email) } : { ToEmails: [data.toEmail] }),
             };
-    
+
             // שליחת הודעה
             const response = await axios.post("https://localhost:7030/api/GlobalVariables/send-email", emailData);
-            
+
             if (response.status === 200) {
                 setMessage('ההודעה נשלחה בהצלחה!');
                 setMessageType('success');
@@ -54,8 +57,11 @@ const EmailSender = () => {
             setMessage(errorMessage);
             setMessageType('error');
         }
+        finally {
+            dispatch(actiontype.endLoading()); // סיום מצב טעינה
+        }
     };
-    
+
 
     const handleCheckboxChange = (event) => {
         setSendToAll(event.target.checked);

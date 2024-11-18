@@ -11,7 +11,7 @@ import EmailSender from '../Global/emailSender';
 import SubtractAmount from '../Global/subtractAmount';
 import Settings from '../Global/settings';
 import DateCalculation from '../Global/dateCalculation'
-
+import HistoryRecordList from '../Global/historyRecordList'
 const ROUTES = {
     HOME: '/Home',
     USER_LIST: '/UserList',
@@ -163,6 +163,7 @@ const Header = () => {
                         <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('settingsDialogOpen'); }}>הגדרות</MenuItem>
                     </Menu>
                 </Grid>
+                <HistoryRecordList/>
             </Grid>
 
             {/* Dialogs */}

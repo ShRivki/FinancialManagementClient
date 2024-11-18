@@ -1,8 +1,9 @@
 import * as actiontype from '../Store/actions';
 import axios from "axios";
+import {currencyOptionsValue} from '../constants'
+import { BASIC_URL } from '../constants';
 
-const URL = 'https://localhost:7030/api/Deposit';
-
+const URL = `${BASIC_URL}/Deposit`;
 
 export const getDeposits = () => {
     return async dispatch => {
@@ -38,11 +39,13 @@ export const addDeposit = (data) => {
     return async dispatch => {
         dispatch({ type: actiontype.LOADING_START }); // התחלת טעינה
         try {
-            console.log({ ...data, depositDate: new Date().toISOString() });
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף הפקדה על סך ${data.amount} ${currencyOptionsValue[data.currency]}?`);
+            if (!userConfirmation) {
+                // אם המשתמש לוחץ על ביטול - סיום הפעולה
+                return;
+            }
             const res = await axios.post(URL, { ...data, depositDate: new Date().toISOString() });
-            alert(res.data.currency)
-            console.log(res.data)
-            dispatch({ type: actiontype.ADD_DEPOSIT, data: res.data});
+            dispatch({ type: actiontype.ADD_DEPOSIT, data: res.data });
             alert(`ההפקדה נוספה בהצלחה`);
         } catch (error) {
             console.error(error);
@@ -54,6 +57,10 @@ export const addDeposit = (data) => {
 export const updateDepositDate = (id, date) => {
     return async dispatch => {
         try {
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך לשנות תאריך החזר הפקדה ל ${date} ?`);
+            if (!userConfirmation) {
+                return;
+            }
             dispatch(actiontype.startLoading());
             const res = await axios.put(`${URL}/${id}/repaymentDate/${date}`); // בקשה לשינוי תאריך החזר
             dispatch({ type: actiontype.REPAYMENT_DEPOSIT, data: res.data }); // עדכון ה-state עם התוצאה
@@ -61,7 +68,7 @@ export const updateDepositDate = (id, date) => {
         } catch (error) {
             console.error(error);
         } finally {
-            dispatch(actiontype.endLoading()); 
+            dispatch(actiontype.endLoading());
         }
     }
 }
@@ -70,15 +77,18 @@ export const repaymentDeposit = (id, repaymentAmount) => {
     return async dispatch => {
         dispatch({ type: actiontype.LOADING_START });
         try {
-            
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להחזיר ${repaymentAmount} ?`);
+            if (!userConfirmation) {
+                return;
+            }
             const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}`);
-            dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data});
+            dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data });
             alert(`הוחזר ${repaymentAmount} בהצלחה`);
         } catch (error) {
             // אם השגיאה מכילה את ההודעה על כך שנדרש אישור מנהל
             if (error.response && error.response.data) {
                 // הצגת הודעת השגיאה המקורית
-                console.log(error.response.data )
+                console.log(error.response.data)
                 const errorMessage = error.response?.data?.message || 'שגיאה במהלך החזרה.';
                 // setMessage(errorMessage);
                 // const errorMessage = error.response.data
@@ -86,7 +96,7 @@ export const repaymentDeposit = (id, repaymentAmount) => {
                 if (managerApproval) {
                     // קריאה חוזרת עם אישור מנהל
                     const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}&managerApproval=true`);
-                    dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data});
+                    dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data });
                     alert(`הוחזר ${repaymentAmount} בהצלחה`);
                 }
             } else {

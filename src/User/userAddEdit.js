@@ -10,12 +10,12 @@ import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, C
 
 const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
     const schema = yup.object({
-        identity: yup.string().required('שדה חובה').matches(/^\d{9}$/, 'תעודת הזהות חייבת להכיל 9 ספרות בדיוק').test('is-valid-id', 'מספר הזהות אינו תקין', value => isIsraeliIdValid(value)).test('is-unique', 'מספר זהות קיים כבר', value => isIdentityUnique(value)),
-        firstName: yup.string().required('שדה חובה').matches(/^.{3,}$/, 'שם חייב להכיל לפחות 3 תווים'),
+        identity: yup.string().required('שדה חובה').matches(/^\d{9}$/, '9 ספרות בדיוק').test('is-valid-id', 'מספר הזהות אינו תקין', value => isIsraeliIdValid(value)).test('is-unique', 'מספר זהות קיים כבר', value => isIdentityUnique(value)),
+        firstName: yup.string().required('שדה חובה').matches(/^.{2,}$/, 'שם חייב להכיל לפחות 2 תווים'),
         lastName: yup.string().required('שדה חובה').matches(/^.{2,}$/, 'שם חייב להכיל לפחות 2 תווים'),
         address: yup.string().required('שדה חובה').matches(/^.{3,}$/, 'הכתובת חייבת להכיל לפחות 3 תווים ויכולה להכיל אותיות ומספרים'),
-        phone: yup.string().required('שדה חובה').matches(/^\d{9,10}$/, 'מספר הטלפון חייב להכיל 9 או 10 ספרות בדיוק'),
-        phone2: yup.string().nullable().test('is-valid-phone', 'מספר הטלפון חייב להכיל 9 או 10 ספרות בדיוק', value => !value || /^\d{9,10}$/.test(value)),
+        phone: yup.string().required('שדה חובה').matches(/^\d{9,10}$/, ' 9/ 10 ספרות בדיוק'),
+        phone2: yup.string().nullable().test('is-valid-phone', '9/ 10 ספרות בדיוק', value => !value || /^\d{9,10}$/.test(value)),
         email: yup.string().email('אימייל חייב להיות תקני'),
         isReliable: yup.boolean().default(true) // שדה אמינות המשתמש
     }).required();
@@ -24,7 +24,7 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
 
     // יצירת פונקציה לבדוק אם מספר הזהות קיים
     const isIdentityUnique = (identity) => {
-        return !users.some(user => user.identity === identity && user.identity != initialValues?.identity);
+        return !users.some(user => user.identity === identity && user.identity !== initialValues?.identity);
     };
     const dispatch = useDispatch();
     const {
@@ -50,7 +50,7 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
         }
 
         return total % 10 === 0; // בדיקה אם הסכום מתחלק ב-10
-      };
+    };
 
     useEffect(() => {
         if (initialValues && Object.keys(initialValues).length > 0) {
@@ -94,7 +94,7 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
             <DialogTitle>{initialValues.identity ? "עדכון משתמש" : "הוספת משתמש"}</DialogTitle>
             <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 600, margin: '0 auto' }}>
                 <DialogContent>
-                    <TextField label="תעודת זהות" variant="outlined" fullWidth {...register("identity")} sx={{ mb: 2 }}  disabled={!!initialValues.id} />
+                    <TextField label="תעודת זהות" variant="outlined" fullWidth {...register("identity")} sx={{ mb: 2 }}/>
                     <p>{errors.identity?.message}</p>
                     <TextField label="שם פרטי" variant="outlined" fullWidth {...register("firstName")} sx={{ mb: 2 }} />
                     <p>{errors.firstName?.message}</p>

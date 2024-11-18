@@ -62,7 +62,7 @@ const DepositDetails = ({ deposit }) => {
                 {renderTextSection('הערות:', notes)}
                 <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" sx={{ color: '#2F4F4F' }}>תאריך פרעון: {dateOfMaturity ? format(new Date(dateOfMaturity), 'dd/MM/yyyy') : 'אין תאריך פרעון'}</Typography>
-                    <IconButton onClick={() => setEditDate(!editDate)}><EditIcon /></IconButton>
+                   {status&&<IconButton onClick={() => setEditDate(!editDate)}><EditIcon /></IconButton>} 
                 </Box>
                 {editDate && <LoanRepaymentDateUpdate deposit={deposit} />}
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל')}
