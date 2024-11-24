@@ -12,7 +12,7 @@ const LoansList = () => {
   const dispatch = useDispatch();
   const allLoans = useSelector(state => state.Loan.loans);
   const allInactiveLoans = useSelector(state => state.Loan.inactiveLoans);
-  const [sortOrder, setSortOrder] = useState('default');
+  const [sortOrder, setSortOrder] = useState('dateDesc');
   const [showInactive, setShowInactive] = useState(true);
   useEffect(() => {
     const fetchData = async () => {

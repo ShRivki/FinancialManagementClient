@@ -16,22 +16,27 @@ axios.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-export const logIn = async (data, navigate) => {
-  try {
-    const response = await axios.post(`${BASIC_URL}/LogIn`, { userName: data.UserName, password: data.Password });
-    localStorage.setItem('token', response.data.token);
-    alert('התחברת בהצלחה');
-    console.log(response.data.token)
-    navigate('/Home');
-  } catch (error) {
-    alert('Login error');
+export const logIn = (data, navigate) => {
+  return async dispatch => {
+    try {
+      const response = await axios.post(`${BASIC_URL}/LogIn`, { userName: data.UserName, password: data.Password });
+      localStorage.setItem('token', response.data.token);
+      dispatch({ type: actiontype.LOG_IN });
+      navigate('/Home');
+      alert('התחברת בהצלחה');
+    } catch (error) {
+      alert('שגיאה :(');
+    }
   }
 };
 
 
 export const logOut = (navigate) => {
-  localStorage.removeItem('token');
-  navigate("/");
+  return async dispatch => {
+    localStorage.removeItem('token');
+    dispatch({ type: actiontype.LOG_OUT });
+    navigate("/");
+  }
 };
 
 export const getUsers = () => {
@@ -44,6 +49,16 @@ export const getUsers = () => {
     }
   }
 }
+export const getUserById = async (id) => {
+    try {
+      const res = await axios.get(`${BASIC_URL}/User/${id}`);
+      console.log(res.data)
+      return res.data;
+    } catch (error) {
+      console.error(error);
+    }
+
+}
 export const addUser = (data) => {
   return async dispatch => {
     try {
@@ -54,11 +69,12 @@ export const addUser = (data) => {
       dispatch(actiontype.startLoading());
       const res = await axios.post(`${BASIC_URL}/User`, data);
       dispatch({ type: actiontype.ADD_USER, data: res.data });
+      alert("משתמש נוסף בהצלחה")
     } catch (error) {
       console.error(error);
     } finally {
       dispatch(actiontype.endLoading());
-      alert("משתמש נוסף בהצלחה")
+
     }
   }
 }
@@ -72,13 +88,11 @@ export const editUser = (data) => {
       dispatch(actiontype.startLoading());
       const res = await axios.put(`${BASIC_URL}/User/${data.id}`, { ...data });
       dispatch({ type: actiontype.EDIT_USER, data: res.data });
-
-
+      alert("משתמש נערך בהצלחה");
     } catch (error) {
       console.error(error);
     } finally {
       dispatch(actiontype.endLoading());
-      alert("משתמש נערך בהצלחה")
     }
   }
 }

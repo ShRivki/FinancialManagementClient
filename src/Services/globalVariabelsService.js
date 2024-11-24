@@ -9,8 +9,9 @@ export const getGlobalVariables = () => {
     return async dispatch => {
         try {
             const res = await axios.get(URL);
-            console.log(res.data)
             dispatch({ type: actiontype.GET_GLOBAL_VARIABELS, data: res.data });
+            const ratesResponse = await axios.get(`${BASIC_URL}/GlobalVariables/rates`);
+            dispatch({ type: actiontype.SET_CURRENCY_RATES, data: ratesResponse.data });
         } catch (error) {
             console.error(error);
         }
@@ -32,3 +33,13 @@ export const subBalance = (operatingExpenses,currency) => {
     }
 
 }
+export const getHistoryRecords = () => {
+    return async dispatch => {
+        try {
+            const response = await axios.get(`${URL}/HistoryRecord`);
+            dispatch({ type: actiontype.GET_HISTORY_RECORDS, data: response.data });
+        } catch (error) {
+            console.error("Error fetching history records:", error);
+        }
+    };
+};

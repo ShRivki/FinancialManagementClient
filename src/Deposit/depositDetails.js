@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { currencyOptionsValue } from '../constants.js';
 import { paymentMethodsOptionsValue } from '../constants.js'
 import EditIcon from '@mui/icons-material/Edit';
+import { formatCurrency } from '../constants.js';
 import LoanRepaymentDateUpdate from '../Loan/loanRepaymentDateUpdate.js';
 
 
@@ -58,7 +59,7 @@ const DepositDetails = ({ deposit }) => {
                     </Grid>
                 </Grid>
                 <Divider sx={{ my: 2, borderColor: '#003366' }} />
-                {renderTextSection('סכום הפקדה:', `${amountRefunded} / ${amount} ${currencyOptionsValue[currency]}`)}
+                {renderTextSection('סכום הפקדה:', `${formatCurrency(amountRefunded)} / ${formatCurrency(amount)} ${currencyOptionsValue[currency]}`)}
                 {renderTextSection('הערות:', notes)}
                 <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" sx={{ color: '#2F4F4F' }}>תאריך פרעון: {dateOfMaturity ? format(new Date(dateOfMaturity), 'dd/MM/yyyy') : 'אין תאריך פרעון'}</Typography>

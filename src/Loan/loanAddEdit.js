@@ -14,7 +14,7 @@ import { paymentMethodsOptions } from '../constants.js'
 const schema = yup.object({
     borrowerId: yup.number().required("שדה חובה").min(1),
     amount: yup.number("ערך מספרי").required("שדה חובה").min(1, 'סכום חייב להיות חיובי').typeError('סכום חייב להיות מספר תקין'),
-    currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2, 3], 'מטבע לא חוקי'),
+    currency: yup.number().oneOf([0, 1, 2, 3], 'מטבע לא חוקי').transform((value) => (value === undefined || value === null ? 0 : value)).default(0),
     paymentMethods: yup.array().of(yup.number()).min(1, 'חייב לבחור לפחות שיטת תשלום אחת'),
     guarantees: yup.array().of(yup.object({ guarantorId: yup.number().required().min(1) })),
     depositGuarantee: yup.array().of(yup.object({ depositUserId: yup.number().required().min(1) })),
@@ -34,8 +34,8 @@ const LoanAddEdit = () => {
     const [addUser, setaddUser] = useState(false);
     const [guarantorsSelected, setGuarantorsSelected] = useState([]);
     const [selectedPayments, setSelectedPayments] = useState([]);
-    const [customFrequency, setCustomFrequency] = useState('');
-    const [isCustomFrequency, setIsCustomFrequency] = useState(false);
+    // const [customFrequency, setCustomFrequency] = useState('');
+    // const [isCustomFrequency, setIsCustomFrequency] = useState(false);
 
     const { register, handleSubmit, control, setValue, watch, formState: { errors, isValid } } = useForm({
         resolver: yupResolver(schema),
@@ -99,7 +99,6 @@ const LoanAddEdit = () => {
         console.log(formattedData)
         state?.borrower?.id ? dispatch(editLoan(formattedData, state.id)) : dispatch(addLoan(formattedData, navigate));
     };
-
     const renderSelectField = (label, name, options, { multiple = false, renderValue } = {}) => (
         <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
             <InputLabel>{label}</InputLabel>
@@ -115,7 +114,7 @@ const LoanAddEdit = () => {
                 renderValue={renderValue}
             >
                 
-                {!multiple && <MenuItem value={null} disabled>בחר {label}</MenuItem>}
+                {/* {!multiple && <MenuItem value={null} disabled>בחר {label}</MenuItem>} */}
                 {options.map(option => (
                     <MenuItem key={option.id} value={option.id} disabled={guarantorsSelected.includes(option.id)}>
                         {option.name}
@@ -150,7 +149,7 @@ const LoanAddEdit = () => {
                 </FormControl>
                 <TextField label="תדירות החזר בחודשים" variant="outlined" fullWidth type="number" {...register("frequency")} sx={{ mb: 2 }} />
                 {errors.frequency?.message && <p>{errors.frequency?.message}</p>}
-                {isCustomFrequency && <TextField label="מספר ימים" variant="outlined" fullWidth type="number" value={customFrequency} onChange={(e) => { setCustomFrequency(e.target.value); setValue("frequency", e.target.value); }} sx={{ mb: 2 }} />}
+                {/* {isCustomFrequency && <TextField label="מספר ימים" variant="outlined" fullWidth type="number" value={customFrequency} onChange={(e) => { setCustomFrequency(e.target.value); setValue("frequency", e.target.value); }} sx={{ mb: 2 }} />} */}
                 <TextField label="מספר תשלומים" variant="outlined" fullWidth type="number" {...register("totalPayments")} sx={{ mb: 2 }} />
                 {errors.totalPayments?.message && <p>{errors.totalPayments?.message}</p>}
                 <TextField label="תאריך החזר" variant="outlined" fullWidth type="date" {...register("repaymentDate")} InputLabelProps={{ shrink: true }} sx={{ mb: 2 }} />

@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 import { getUsers } from '../Services/userService';
 import UserDetails from './userDetails';
 import ExportButton from '../exportButton';
+import { Tooltip } from '@mui/material';
+
 const TablePaginationActions = ({ count, page, rowsPerPage, onPageChange }) => {
   const theme = useTheme();
   const handlePageChange = (event, newPage) => onPageChange(event, newPage);
@@ -45,8 +47,24 @@ const UserList = () => {
 
   useEffect(() => {
     dispatch(getUsers());
-   
+
   }, []);
+  // להכפיל במטח
+  const calculateDebt = (user) => {
+    if (!user.loans || user.loans.length === 0) {
+      return 0;
+    }
+    return user.loans.reduce((totalDebt, loan) => totalDebt + loan.remainingAmount, 0);
+  };
+
+  // להכפיל במטח
+  const calculateBalance = (user) => {
+    if (!user.deposits || user.deposits.length === 0) {
+      return 0;
+    }
+    return user.deposits.reduce((totalBalance, deposit) => totalBalance + (deposit.amount - deposit.amountRefunded), 0);
+  };
+
 
   const highlightText = (text) => {
     if (typeof text !== 'string') return text;
@@ -58,7 +76,7 @@ const UserList = () => {
   };
 
   const filteredUsers = users.filter(user =>
-    [user.firstName, user.lastName, user.email, user.address,user.identity].some(field =>
+    [user.firstName, user.lastName, user.email, user.address, user.identity].some(field =>
       (field || '').toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
@@ -66,27 +84,29 @@ const UserList = () => {
   return (
     <Box sx={{ marginTop: 4, width: '85%', mx: 'auto' }}>
       <Box sx={{ mb: 2, width: '15%' }}>
-        <TextField label="...חיפוש" variant="outlined" fullWidth onChange={(e) => {setSearchTerm(e.target.value);setPage(0); }}  value={searchTerm}
+        <TextField label="...חיפוש" variant="outlined" fullWidth onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }} value={searchTerm}
         />
       </Box>
       <Box sx={{ mb: 2, textAlign: 'right' }}>
-      <ExportButton
-        data={users.map(user => ({
-          'מזהה משתמש': user.identity,
-          'שם פרטי': user.firstName,
-          'שם משפחה': user.lastName,
-          'כתובת': user.address,
-          'טלפון 1': user.phone,
-          'טלפון 2': user.phone2 || '-',
-          'מייל': user.email,
-        }))}
-        fileName={`UsersList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
-      />
-    </Box>
+        <Tooltip title="ייצוא רשימת משתמשים ל" arrow>
+          <ExportButton
+            data={users.map(user => ({
+              'מזהה משתמש': user.identity,
+              'שם פרטי': user.firstName,
+              'שם משפחה': user.lastName,
+              'כתובת': user.address,
+              'טלפון 1': user.phone,
+              'טלפון 2': user.phone2 || '-',
+              'מייל': user.email,
+            }))}
+            fileName={`UsersList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
+          /> </Tooltip>
+        
+      </Box>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
           <TableBody>
-            {(rowsPerPage > 0 ? filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage): filteredUsers
+            {(rowsPerPage > 0 ? filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : filteredUsers
             ).map((user, index) => (
               <UserDetails key={index} user={user} highlightText={highlightText} />
             ))}

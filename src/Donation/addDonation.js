@@ -65,7 +65,7 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
                     <DialogContent>
                         <Autocomplete
                             options={users}
-                            getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+                            getOptionLabel={(option) => `${option.firstName} ${option.lastName} ${option.identity}`}
                             onChange={(event, newValue) => {
                                 setSelectedDonor(newValue?.id || "");
                             }}

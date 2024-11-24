@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { TextField, Button, Box, Typography, Container } from "@mui/material";
 import { logIn } from "../Services/userService";
@@ -13,13 +14,14 @@ const schema = yup.object({
 }).required();
 
 const LogIn = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
     });
 
     const onSubmit = (data) => {
-        logIn(data, navigate);
+       dispatch(logIn(data, navigate)) 
     };
 
     return (

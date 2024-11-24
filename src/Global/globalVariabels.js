@@ -31,7 +31,7 @@ const GlobalVariabel = () => {
         const animateValue = (setter, value) => {
             let start = 0;
             const end = value;
-            const duration = 3000; // זמן האנימציה ב milliseconds
+            const duration = 1500; // זמן האנימציה ב milliseconds
             const startTime = performance.now();
 
             const step = (timestamp) => {

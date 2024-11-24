@@ -1,6 +1,7 @@
 import * as actiontype from './actions';
 import { currencyOptionsValue } from '../constants'
 const initialState = {
+    historyRecords:[],
     totalFundBalance: 0.0,
     activeLoans: 0.0,
     totalLoansGranted: 0.0,
@@ -41,14 +42,18 @@ const updateBalance = (state, amount, currency) => {
 
 const globalReducer = (state = initialState, action) => {
     switch (action.type) {
+        
         case actiontype.SET_CURRENCY_RATES:
             return {
                 ...state,
-                currencyRates: action.payload // עדכון שערי המטבע
+                currencyRates: action.data // עדכון שערי המטבע
             };
         case actiontype.GET_GLOBAL_VARIABELS: {
             const { totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR } = action.data[0];
             return { ...state, totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR };
+        }
+        case actiontype.GET_HISTORY_RECORDS: {
+            return { ...state, historyRecords: action.data };
         }
         case actiontype.SUB_BALANCE:
             return updateBalance(state, -action.data, action.currency);

@@ -5,30 +5,24 @@ import HistoryIcon from '@mui/icons-material/History';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { BASIC_URL } from '../constants';
+import { useDispatch, useSelector } from 'react-redux';
 import ExportButton from '../exportButton';
+import { getHistoryRecords } from '../Services/globalVariabelsService'
 const HistoryRecordList = () => {
-    const [historyRecords, setHistoryRecords] = useState([]);
+    // const [historyRecords, setHistoryRecords] = useState([]);
     const [showHistory, setShowHistory] = useState(false);
+    const dispatch = useDispatch();
+    const { historyRecords } = useSelector(state => state.GlobalVariables);
     const theme = useTheme();
 
     useEffect(() => {
-        axios.get(`${BASIC_URL}/GlobalVariables/HistoryRecord`)
-            .then(response => setHistoryRecords(response.data))
-            .catch(error => console.error("Error fetching data:", error));
-    }, [showHistory]);
 
+        dispatch(getHistoryRecords());
+
+    }, [showHistory, dispatch]);
     return (
         <Box sx={{ padding: 2 }}>
-            <Box sx={{ mb: 2, textAlign: 'right' }}>
-                <ExportButton
-                    data={historyRecords.map(item => ({
-                        'סוג פעולה': item.actionType, // תרגום שם העמודה
-                        'נושא': item.topic, // תרגום שם העמודה
-                        'תיאור': item.action, // תרגום שם העמודה
-                        'תאריך': new Date(item.date).toLocaleString(),
-                    }))}
-                />
-            </Box>
+
             <IconButton
                 onClick={() => setShowHistory(!showHistory)}
                 sx={{ position: 'fixed', top: 20, left: 20, backgroundColor: theme.palette.primary.main, color: 'white', '&:hover': { backgroundColor: theme.palette.primary.dark }, boxShadow: 3, padding: 1 }}>
@@ -41,6 +35,17 @@ const HistoryRecordList = () => {
                         <IconButton onClick={() => setShowHistory(false)} sx={{ position: 'fixed', top: 10, left: 320, backgroundColor: 'white', '&:hover': { backgroundColor: 'lightgray' }, padding: 1, zIndex: 1100 }}>
                             <CloseIcon />
                         </IconButton>
+                        <Box sx={{ position: 'fixed', top: 0, left: 260, zIndex: 1100 }}>
+                            <ExportButton
+                                data={historyRecords.map(item => ({
+                                    'נושא': item.topic,
+                                    'סוג פעולה': item.actionType,
+                                    'תיאור': item.action,
+                                    'תאריך': new Date(item.date).toLocaleString(),
+                                }))}
+                                fileName={`History_Record_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
+                            />
+                        </Box>
                         <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>היסטוריית פעולות</Typography>
                         <Divider sx={{ mb: 2 }} />
                         <Grid container direction="column" spacing={2}>

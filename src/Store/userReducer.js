@@ -1,9 +1,17 @@
 import * as actiontype from './actions'
 const initialState = {
+    token:false,
     users: []
 }
 const usersReducer = (state = initialState, action) => {
     switch (action.type) {
+        case actiontype.LOG_IN: {
+            alert("m")
+            return { ...state, token: true };
+        }
+        case actiontype.LOG_OUT: {
+            return { ...state, token: false };
+        }
         case actiontype.GET_USERS: {
             return { ...state, users: action.data };
         }

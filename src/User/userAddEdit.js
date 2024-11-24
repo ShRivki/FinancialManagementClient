@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect ,useState} from 'react';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { addUser, editUser } from "../Services/userService";
 import { useDispatch, useSelector } from 'react-redux';
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Checkbox, FormControlLabel } from '@mui/material'; // ייבוא של FormControlLabel ו־Checkbox
- const isIsraeliIdValid = id => /^\d{9}$/.test(id) && id.split('').reduce((acc, val, i) => acc + (parseInt(val) * (i % 2 === 0 ? 1 : 2)).toString().split('').reduce((a, b) => a + parseInt(b), 0), 0) % 10 === 0;
-
+ const isPassportValid = passportNumber => /^[A-Za-z0-9]{8,12}$/.test(passportNumber);
 
 const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
     const schema = yup.object({
-        identity: yup.string().required('שדה חובה').matches(/^\d{9}$/, '9 ספרות בדיוק').test('is-valid-id', 'מספר הזהות אינו תקין', value => isIsraeliIdValid(value)).test('is-unique', 'מספר זהות קיים כבר', value => isIdentityUnique(value)),
+        identity: yup.string().required('שדה חובה').test('is-valid-identity','מספר הזהות/דרכון אינו תקין',
+            value => isPassport ? isPassportValid(value) : isIsraeliIdValid(value)).test('is-unique','מספר זהות/דרכון קיים כבר',value => isIdentityUnique(value)),
         firstName: yup.string().required('שדה חובה').matches(/^.{2,}$/, 'שם חייב להכיל לפחות 2 תווים'),
         lastName: yup.string().required('שדה חובה').matches(/^.{2,}$/, 'שם חייב להכיל לפחות 2 תווים'),
         address: yup.string().required('שדה חובה').matches(/^.{3,}$/, 'הכתובת חייבת להכיל לפחות 3 תווים ויכולה להכיל אותיות ומספרים'),
@@ -19,7 +19,7 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
         email: yup.string().email('אימייל חייב להיות תקני'),
         isReliable: yup.boolean().default(true) // שדה אמינות המשתמש
     }).required();
-
+    const [isPassport, setIsPassport] = useState(false);
     const users = useSelector(state => state.User.users); // העברת ה־useSelector פנימה לקומפוננטה
 
     // יצירת פונקציה לבדוק אם מספר הזהות קיים
@@ -42,7 +42,6 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
         if (!/^\d{9}$/.test(idNumber)) {
           return false; // וידוא שהקלט כולל בדיוק 9 ספרות
         }
-
         let total = 0;
         for (let i = 0; i < 9; i++) {
           let digit = parseInt(idNumber[i], 10) * (i % 2 === 0 ? 1 : 2);
@@ -92,9 +91,12 @@ const UserAddEdit = ({ open, handleClose, initialValues = {} }) => {
     return (
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>{initialValues.identity ? "עדכון משתמש" : "הוספת משתמש"}</DialogTitle>
-            <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 600, margin: '0 auto' }}>
+            <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 500, margin: '0 auto' }}>
                 <DialogContent>
-                    <TextField label="תעודת זהות" variant="outlined" fullWidth {...register("identity")} sx={{ mb: 2 }}/>
+                <FormControlLabel
+                     control={ <Checkbox checked={isPassport} onChange={(e) => setIsPassport(e.target.checked)}/>}
+                        label="מספר דרכון" />
+                    <TextField label={isPassport ? "מספר דרכון" : "תעודת זהות"} variant="outlined" fullWidth {...register("identity")} sx={{ mb: 2 }}/>
                     <p>{errors.identity?.message}</p>
                     <TextField label="שם פרטי" variant="outlined" fullWidth {...register("firstName")} sx={{ mb: 2 }} />
                     <p>{errors.firstName?.message}</p>

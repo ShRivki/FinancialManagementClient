@@ -1,3 +1,4 @@
+
 export const currencyOptions = [
     { label: '₪', value: 0 },
     { label: '$', value: 1 },
@@ -34,6 +35,29 @@ export const paymentMethodsOptionsValue = {
     2: 'מזומן',
     4: 'העברה'
 }
+export const formatCurrency = (amount) => {
+    // אם הסכום שלם, הצג את הסכום עם פסיקים בלבד
+    return amount % 1 === 0
+        ? amount.toLocaleString('he-IL')
+        // אם יש חלק עשרוני, הצג אותו עם שתי ספרות עשרוניות
+        : amount.toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+export const convertToILS = (amount, currency,currencyRates) => {
+    // alert(currency)
+    const currencyMappings = {
+        0: 1, // ILS
+        1: currencyRates.usdRate, // USD
+        2: currencyRates.eurRate, // EUR
+        3: currencyRates.gbpRate // GBP
+    };
+    const rate = currencyMappings[currency];
+    if (rate) {
+        return amount * rate; // המרת הסכום לשקלים
+    } else {
+        throw new Error("Invalid currency type");
+    }
+};
+
 
 
 export const BASIC_URL = 'https://localhost:7030/api'

@@ -14,47 +14,48 @@ import LoansList from './Loan/loanList.js';
 import LoanAddEdit from './Loan/loanAddEdit.js';
 import Home from './Home/home.js';
 import CurrentPendingItems from './Global/currentPendingItems.js'
-import { getUsers } from './Services/userService.js';
+import { getUsers, logOut } from './Services/userService.js';
 import { getDeposits } from './Services/depositService.js';
 import { getLoans } from './Services/loanService.js';
 
 function App() {
   const loading = useSelector(state => state.Loading.loading);
   const dispatch = useDispatch();
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const token = useSelector(state => state.User.token);
 
   useEffect(() => {
-    const fetchData = async () => {
-      await dispatch(getUsers());
-      await dispatch(getLoans());
-      await dispatch(getDeposits());
-      console.log("finish")
+    if (token) {
+      const fetchData = async () => {
+        await dispatch(getUsers());
+        await dispatch(getLoans());
+        await dispatch(getDeposits());
+        console.log("finish")
+      };
+
+      fetchData();
+    }
+  }, [token]);
+  useEffect(() => {
+    const checkTokenValidity = () => {
+      if (token) {
+        const token2 = localStorage.getItem('token')
+        const decodedToken = jwtDecode(token2);
+        const currentTime = Date.now() / 1000; // הזמן הנוכחי בשניות
+        if (decodedToken.exp && decodedToken.exp < currentTime && window.location.pathname !== '/') {
+          alert('החיבור פג תוקף' );
+          dispatch(logOut())
+          window.location.href = '/'; // ניתוב מחדש לדף ההתחברות
+        }
+      }
     };
 
-    fetchData();
-  }, []);
-  // useEffect(() => {
-  //   const checkTokenValidity = () => {
-  //     if (token) {
-  //       const decodedToken = jwtDecode(token);
-  //       const currentTime = Date.now() / 1000; // הזמן הנוכחי בשניות
-  //       if (decodedToken.exp && decodedToken.exp < currentTime) {
-  //         alert('הטוקן פג תוקף');
-  //         setToken(null);
-  //         window.location.href = '/'; // ניתוב מחדש לדף ההתחברות
-  //       }
-  //     }
-  //     if (!token)
-  //       setToken(localStorage.getItem('token'))
-  //   };
+    checkTokenValidity();
 
-  //   checkTokenValidity();
+    // בדיקה מחזורית כל 5 דקות (ניתן לשנות)
+    const interval = setInterval(checkTokenValidity, 300000);
 
-  //   // בדיקה מחזורית כל 5 דקות (ניתן לשנות)
-  //   const interval = setInterval(checkTokenValidity, 300000);
-
-  //   return () => clearInterval(interval);
-  // }, [token]);
+    return () => clearInterval(interval);
+  }, [token]);
 
   return (
     <div className="App">
