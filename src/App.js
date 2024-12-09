@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, CircularProgress } from '@mui/material';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, useNavigate, Navigate } from 'react-router-dom';
 import Header from './Header/Header.js';
 import LogIn from './User/logIn.js';
 import { jwtDecode } from 'jwt-decode';
@@ -17,12 +17,20 @@ import CurrentPendingItems from './Global/currentPendingItems.js'
 import { getUsers, logOut } from './Services/userService.js';
 import { getDeposits } from './Services/depositService.js';
 import { getLoans } from './Services/loanService.js';
+import { IconButton } from '@mui/material';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 function App() {
   const loading = useSelector(state => state.Loading.loading);
   const dispatch = useDispatch();
   const token = useSelector(state => state.User.token);
-
+  const navigate = useNavigate();
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth', // גלילה חלקה
+    });
+  };
   useEffect(() => {
     if (token) {
       const fetchData = async () => {
@@ -42,9 +50,9 @@ function App() {
         const decodedToken = jwtDecode(token2);
         const currentTime = Date.now() / 1000; // הזמן הנוכחי בשניות
         if (decodedToken.exp && decodedToken.exp < currentTime && window.location.pathname !== '/') {
-          alert('החיבור פג תוקף' );
-          dispatch(logOut())
-          window.location.href = '/'; // ניתוב מחדש לדף ההתחברות
+          alert('החיבור פג תוקף');
+          dispatch(logOut(navigate))
+          // window.location.href = '/'; // ניתוב מחדש לדף ההתחברות
         }
       }
     };
@@ -78,6 +86,29 @@ function App() {
         <Route path="/loanAddEdit" element={token ? <LoanAddEdit /> : <Navigate to="/" />} />
         <Route path="/Home" element={token ? <Home /> : <Navigate to="/" />} />
       </Routes>
+      <div style={{
+        position: 'fixed', bottom: 10, right: 10, fontSize: '14px', color: 'black', zIndex: 1000,
+        fontFamily: 'Arial, sans-serif', textAlign: 'right', direction: 'rtl', writingMode: 'vertical-rl', transform: 'rotate(180deg)'
+      }}>
+        <span>© כל הזכויות שמורות. </span>
+        <span>Rivka Shraiber - R0548524600@gmail.com</span>
+      </div><IconButton 
+      onClick={scrollToTop} 
+      sx={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '30px',
+        backgroundColor: 'primary.main',
+        color: 'white',
+        '&:hover': {
+          backgroundColor: 'primary.dark',
+        },
+      }}
+    >
+      <ArrowUpwardIcon />
+    </IconButton>
+
+
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import * as actiontype from '../Store/actions'
+import * as actiontype from '../Store/actions';
 import { useDispatch, useSelector } from 'react-redux';
 
 const EmailSender = () => {
@@ -14,6 +14,8 @@ const EmailSender = () => {
     const [sendToAll, setSendToAll] = useState(false); // מצב ל-send to all
     const users = useSelector(state => state.User.users);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [files, setFiles] = useState([]);
+    
     // אופציות של משתמשים כולל מידע נוסף עבור סינון והצגה
     const userOptions = users.map(user => ({
         label: `${user.firstName} ${user.lastName} - ${user.email}`,
@@ -31,20 +33,31 @@ const EmailSender = () => {
             option.email.toLowerCase().includes(lowerInput)
         );
     };
-
     const onSubmit = async (data) => {
         try {
-            dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
-            const emailData = {
+            dispatch(actiontype.startLoading());
+    
+            const emailData = new FormData();
+            const emailRequest = {
                 subject: data.subject,
                 body: data.body,
-                // בודק אם יש לשלוח לכולם, ואם כן, מוסיף את הכתובות כעותק מוסתר
-                ...(sendToAll ? { ToEmails: users.map(user => user.email) } : { ToEmails: [data.toEmail] }),
+                toEmails: sendToAll ? users.map(user => user.email) : [data.toEmail]
             };
-
-            // שליחת הודעה
+            emailData.append('emailRequestJson', JSON.stringify(emailRequest));
+    
+            // הוסף את הקבצים ל-FormData רק אם יש קבצים
+            if (files.length > 0) {
+                files.forEach((file, index) => {
+                    console.log(file)
+                    emailData.append(`attachments[${index}]`, file);
+                });
+            }   
+            for (let [key, value] of emailData.entries()) {
+                console.log(key, value);
+            }         
+    
             const response = await axios.post("https://localhost:7030/api/GlobalVariables/send-email", emailData);
-
+    
             if (response.status === 200) {
                 setMessage('ההודעה נשלחה בהצלחה!');
                 setMessageType('success');
@@ -56,16 +69,19 @@ const EmailSender = () => {
             const errorMessage = error.response?.data?.message || 'שגיאה במהלך השליחה.';
             setMessage(errorMessage);
             setMessageType('error');
-        }
-        finally {
-            dispatch(actiontype.endLoading()); // סיום מצב טעינה
+        } finally {
+            dispatch(actiontype.endLoading());
         }
     };
-
-
+    
+    
     const handleCheckboxChange = (event) => {
         setSendToAll(event.target.checked);
         setValue('toEmail', ''); // ריק את שדה המייל כשסימון וי
+    };
+
+    const handleFileChange = (event) => {
+        setFiles([...event.target.files]);
     };
 
     return (
@@ -134,6 +150,16 @@ const EmailSender = () => {
                         style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #00796b', outline: 'none', color: '#004d40', resize: 'vertical' }}
                     />
                     {errors.body && <p style={{ color: 'red', fontSize: '0.9em' }}>{errors.body.message}</p>}
+                </div>
+                <div>
+                    <label htmlFor="attachments" style={{ color: '#004d40', fontWeight: 'bold' }}>הוסף קובץ:</label>
+                    <input
+                        type="file"
+                        id="attachments"
+                        multiple
+                        onChange={handleFileChange}
+                        style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #00796b', outline: 'none', color: '#004d40' }}
+                    />
                 </div>
                 <button
                     type="submit"

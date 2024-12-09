@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLoans, getInactiveLoans } from '../Services/loanService';
+import { getLoans, getInactiveLoans, getInactiveLoansPerUser } from '../Services/loanService';
 import { useLocation } from 'react-router-dom';
 import LoanDetails from './loanDetails';
 import SortFilter from '../User/sortFilter';
@@ -11,6 +11,7 @@ const LoansList = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
   const allLoans = useSelector(state => state.Loan.loans);
+  const [allInactiveLoansForUser, setAllInactiveLoansForUser] = useState([]);
   const allInactiveLoans = useSelector(state => state.Loan.inactiveLoans);
   const [sortOrder, setSortOrder] = useState('dateDesc');
   const [showInactive, setShowInactive] = useState(true);
@@ -19,24 +20,40 @@ const LoansList = () => {
       await dispatch(getInactiveLoans());
       await dispatch(getLoans());
     };
-  
+
     fetchData();
   }, []);
-  const loans = state?.loans ?? (showInactive ? allLoans : allInactiveLoans);
+  useEffect(() => {
+    if (state?.loans && !showInactive) {
+      const fetchLoans = async () => {
+        try {
+          const inactiveLoans = await getInactiveLoansPerUser(state?.id)();
+          setAllInactiveLoansForUser(inactiveLoans);
+        } catch (error) {
+          console.error("Error fetching loans:", error);
+        }
+      };
+
+      fetchLoans();
+    }
+  }, [showInactive]);
+  const loans = state?.loans ? (showInactive ? state?.loans : allInactiveLoansForUser) : (showInactive ? allLoans : allInactiveLoans);
+
+  // const loans = state?.loans ?? (showInactive ? allLoans : allInactiveLoans);
 
   const formatDate = (date) => {
     if (!(date instanceof Date)) {
       date = new Date(date);
     }
-    return date.toLocaleDateString('he-IL'); 
+    return date.toLocaleDateString('he-IL');
   }
   const sortFunctions = {
     amountAsc: (a, b) => a.amount - b.amount,
     amountDesc: (a, b) => b.amount - a.amount,
     dateAsc: (a, b) => new Date(a.loanDate) - new Date(b.loanDate),
     dateDesc: (a, b) => new Date(b.loanDate) - new Date(a.loanDate),
-    repaymentDateAsc: (a, b) => new Date(a.repaymentDate) - new Date(b.repaymentDate),
-    repaymentDateDesc: (a, b) => new Date(b.repaymentDate) - new Date(a.repaymentDate),
+    repaymentDateAsc: (a, b) => new Date(a.nextPaymentDate) - new Date(b.nextPaymentDate),
+    repaymentDateDesc: (a, b) => new Date(b.nextPaymentDate) - new Date(a.nextPaymentDate),
     nameAsc: (a, b) => a.borrower.firstName.localeCompare(b.borrower.firstName),
     nameDesc: (a, b) => b.borrower.firstName.localeCompare(a.borrower.firstName),
   };
@@ -58,7 +75,14 @@ const LoansList = () => {
 
   return (
     <Box sx={{ p: 2 }}>
-      {!state?.loans && <FormControlLabel
+      {state?.loans && (
+        <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold', color: '#333' }}>
+            הלוואות של {state?.firstName} {state?.lastName}
+          </Typography>
+        </Box>
+      )}
+      {<FormControlLabel
         control={<Checkbox checked={showInactive} onChange={() => setShowInactive(!showInactive)} color="primary" />}
         label={'הצג הלוואות פעילות'}
       />}

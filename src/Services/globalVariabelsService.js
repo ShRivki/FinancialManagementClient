@@ -1,7 +1,6 @@
 import * as actiontype from '../Store/actions'
 import axios from "axios";
-import {currencyOptionsValue}from '../constants'
-import { BASIC_URL } from '../constants';
+import { BASIC_URL,currencyOptionsValue } from '../constants';
 
 const URL = `${BASIC_URL}/GlobalVariables`;
 

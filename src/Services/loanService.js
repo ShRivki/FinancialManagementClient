@@ -1,7 +1,6 @@
 import * as actiontype from '../Store/actions'
 import axios from "axios";
-import { BASIC_URL } from '../constants';
-import { currencyOptionsValue } from '../constants'
+import { currencyOptionsValue,formatCurrency,BASIC_URL } from '../constants'
 import { getUserById } from './userService'
 const URL = `${BASIC_URL}/Loan`;
 export const getLoans = () => {
@@ -43,7 +42,6 @@ export const getInactiveLoans = () => {
             //dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.get(`${URL}/Inactive`);
             dispatch({ type: actiontype.GET_INACTIVE_LOANS, data: res.data });
-            // console.log(res.data)
         } catch (error) {
             console.error(error);
         }
@@ -52,6 +50,15 @@ export const getInactiveLoans = () => {
         // }
     }
 }
+export const getInactiveLoansPerUser = (id) => async () => {
+    try {
+        const res = await axios.get(`${URL}/inactive?id=${id}`);
+        return  res.data;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 export const getLoansByDate = async (untilDate) => {
     try {
         const response = await axios.get(`${URL}/upToDate/${untilDate}`);
@@ -70,7 +77,7 @@ export const addLoan = (data, navigate) => {
                 if (user.guarantees) {
                     for (const guarantee of user.guarantees) {
                         const userConfirmation = window.confirm(
-                            `ערב ${user.firstName} ${user.lastName}  ערב להלוואה מספר ${guarantee.loan.id} על סך ${guarantee.loan.remainingAmount} האם להמשיך?`
+                            `ערב ${user.firstName} ${user.lastName}  ערב להלוואה מספר ${guarantee.loan.id} על סך ${formatCurrency(guarantee.loan.remainingAmount)} האם להמשיך?`
                         );
                         if (!userConfirmation) {
                             return;
@@ -80,7 +87,7 @@ export const addLoan = (data, navigate) => {
                 if (user.loans){
                     for (const loan of user.loans) {
                         const userConfirmation = window.confirm(
-                            `לערב ${user.firstName} ${user.lastName} קיימת הלוואה פעילה מספר ${loan.id} על סך ${loan.remainingAmount}  האם להמשיך?`
+                            `לערב ${user.firstName} ${user.lastName} קיימת הלוואה פעילה מספר ${loan.id} על סך ${formatCurrency(loan.remainingAmount)}  האם להמשיך?`
                         );
                         if (!userConfirmation) {
                             return;
@@ -88,7 +95,7 @@ export const addLoan = (data, navigate) => {
                     }
                 }
             }
-            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף הלוואה על סך ${data.amount} ${currencyOptionsValue[data.currency]}?`);
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף הלוואה על סך ${formatCurrency(data.amount)} ${currencyOptionsValue[data.currency]}?`);
             if (!userConfirmation) {
                 // אם המשתמש לוחץ על ביטול - סיום הפעולה
                 return;
@@ -110,7 +117,7 @@ export const addLoan = (data, navigate) => {
 export const repaymentLoan = (id, repaymentAmount) => {
     return async dispatch => {
         try {
-            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך לבצע החזר הלוואה על סך: ${repaymentAmount} ?`);
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך לבצע החזר הלוואה על סך: ${formatCurrency(repaymentAmount)} ?`);
             if (!userConfirmation) {
                 return;
             }
@@ -133,7 +140,6 @@ export const repaymentLoan = (id, repaymentAmount) => {
 export const editLoan = (data, id, navigate) => {
     return async dispatch => {
         try {
-
             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.put(`${URL}/${id}`, { ...data });
             dispatch({ type: actiontype.EDIT_LOAN, data: res.data });

@@ -6,18 +6,32 @@ import SortFilter from '../User/sortFilter';
 import LoanDetails from '../Loan/loanDetails';
 import {getGuaranteeAmount} from '../Services/userService'
 import { currencyOptionsValue } from '../constants.js';
+import {convertToILS} from '../constants.js'
+import { useCurrencyRates } from '../Global/currencyRates';
 const GuaranteeList = () => {
   const { state } = useLocation();
   const [sortOrder, setSortOrder] = useState('default');
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0); 
-
+  const currencyRates = useCurrencyRates();
   useEffect(() => {
     const fetchGuaranteeAmount = async () => {
       if (state?.id) {
         try {
-          const amount = await getGuaranteeAmount(state.id);
+         
+          let amount = 0, loanAmount = 0, depositAmount = 0;
+
+          state?.depositGuarantees.forEach(depositGuarantee => {
+              loanAmount += convertToILS(depositGuarantee.loan.remainingAmount, depositGuarantee.loan.currency, currencyRates);
+          });
+          
+          state?.guarantees.forEach( guarantee => {
+              depositAmount +=convertToILS(guarantee.loan.remainingAmount, guarantee.loan.currency, currencyRates);
+          });
+          
+          amount = depositAmount + loanAmount;
+          
           setTotalAmount(amount);
         } catch (error) {
           console.error('Error fetching guarantee amount:', error);
@@ -70,7 +84,7 @@ console.log(state?.depositGuarantees )
   return (
     <Box sx={{ p: 2 }}>
          <Typography variant="h5" sx={{ mb: 2 }}>
-        סך כל הערביות שמשתמש זה ערב : {totalAmount} ש"ח
+        סך כל הערבויות שמשתמש זה ערב : {totalAmount} ש"ח
       </Typography>
       <SortFilter
         items={guarantees}

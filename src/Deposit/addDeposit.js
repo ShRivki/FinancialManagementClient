@@ -3,11 +3,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch, useSelector } from 'react-redux';
-import { TextField, Button, MenuItem, Select, InputLabel, FormControl, Dialog, DialogActions, DialogContent, DialogTitle, Checkbox, ListItemText } from '@mui/material';
+import { TextField, Button, MenuItem, Select, InputLabel, FormControl, Dialog, DialogActions, DialogContent, DialogTitle, Checkbox, ListItemText, Box } from '@mui/material';
 import { addDeposit } from '../Services/depositService';
 import UserAddEdit from '../User/userAddEdit';
 import { currencyOptions } from '../constants.js';
-import {paymentMethodsOptions}from '../constants.js'
+import { paymentMethodsOptions } from '../constants.js'
 const schema = yup.object({
     depositorId: yup.number().required('מפקיד נדרש').min(1, 'מפקיד חייב להיות מספר חיובי'),
     amount: yup.number().required('סכום נדרש').min(0, 'הסכום חייב להיות מספר שאינו שלילי'),
@@ -38,13 +38,13 @@ const AddDeposit = ({ open, handleClose, initialValues = {} }) => {
         const formattedDateOfMaturity = new Date(data.dateOfMaturity).toISOString();
         const paymentMethodsValue = selectedPayments.reduce((acc, current) => acc + current, 0); // סוכם את ערכי ה-enum
 
-        const formattedData = { 
-            ...data, 
+        const formattedData = {
+            ...data,
             dateOfMaturity: formattedDateOfMaturity,
             paymentMethods: paymentMethodsValue // שולח את הערך המקודד של אמצעי התשלום
         };
         console.log(formattedData)
-        dispatch(addDeposit(formattedData));    
+        dispatch(addDeposit(formattedData));
         handleClose();
     };
 
@@ -77,9 +77,13 @@ const AddDeposit = ({ open, handleClose, initialValues = {} }) => {
                         <Button onClick={() => setDepositDialogOpen(true)} variant="text" sx={{ mb: 2 }}>
                             הוספת משתמש חדש
                         </Button>
-                        <TextField label="סכום הפקדה" variant="outlined" fullWidth {...register("amount")} sx={{ mb: 2 }} />
-                        {errors.amount?.message && <p>{errors.amount?.message}</p>}
-                        {renderSelectField("מטבע", "currency", currencyOptions.map(c => ({ id: c?.value, name: c.label })))}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <TextField label="סכום הפקדה" variant="outlined" fullWidth {...register("amount")} />
+                            {errors.amount?.message && <p style={{ margin: 0, color: 'red', fontSize: '0.875rem' }}>{errors.amount.message}</p>}
+                            <Box sx={{ minWidth: 120 }}>
+                                {renderSelectField("מטבע", "currency", currencyOptions.map(c => ({ id: c.value, name: c.label })))}
+                            </Box>
+                        </Box>
                         <TextField label="תאריך פרעון" variant="outlined" type='date' fullWidth {...register("dateOfMaturity")} sx={{ mb: 2 }} />
                         {errors.dateOfMaturity?.message && <p>{errors.dateOfMaturity?.message}</p>}
 

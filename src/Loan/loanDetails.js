@@ -45,7 +45,7 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
             <CardContent>
                 <Grid container spacing={2} alignItems="center">
                     <Grid item><Avatar sx={{ bgcolor: '#003366' }}>{id}</Avatar></Grid>
-                    <Grid item xs><Typography variant="h6" component="div" gutterBottom sx={{ color: '#003366' }}>הלוואה של: <strong>{borrower.firstName} {borrower.lastName}</strong></Typography></Grid>
+                    <Grid item xs><Typography variant="h6" component="div" gutterBottom sx={{ color: '#003366' }}>הלוואה של: <strong>{borrower.firstName}  {borrower.lastName}</strong></Typography></Grid>
                 </Grid>
                 <Divider sx={{ my: 2, borderColor: '#003366' }} />
                 {renderTextSection('סכום הלוואה:', `${formatCurrency(amount - remainingAmount)} / ${formatCurrency(amount)} ${currencyOptionsValue[currency]}`, { fontWeight: 'bold', color: '#003366' })}

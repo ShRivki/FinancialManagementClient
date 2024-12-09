@@ -90,7 +90,7 @@ const DonationsList = () => {
               <Grid container spacing={3}>
                 {sortedItems.map((donation, index) => (
                   <Grid item xs={12} sm={6} md={4} key={index}>
-                    <Paper elevation={3} sx={{ padding: 2, minHeight: '250px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: 2, boxShadow: 1 }}>
+                    <Paper elevation={3} sx={{ padding: 2, minHeight: '250px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius:0, boxShadow: 0}}>
                       <DonationDetails donation={donation} />
                     </Paper>
                   </Grid>

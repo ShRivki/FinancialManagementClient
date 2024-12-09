@@ -1,7 +1,6 @@
 import * as actiontype from '../Store/actions';
 import axios from "axios";
-import { BASIC_URL } from '../constants';
-import {currencyOptionsValue} from '../constants'
+import { BASIC_URL ,formatCurrency,currencyOptionsValue} from '../constants';
 const URL = `${BASIC_URL}/Donation`;
 
 export const getDonations = () => {
@@ -23,7 +22,7 @@ export const addDonation = (data) => {
     return async dispatch => {
         dispatch({ type: actiontype.LOADING_START }); // התחלת טעינה
         try {
-            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף תרומה בסך  ${data.amount} ${currencyOptionsValue[data.currency]} ?`);
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף תרומה בסך  ${formatCurrency(data.amount)} ${currencyOptionsValue[data.currency]} ?`);
             if (!userConfirmation) {
                 return;
             }

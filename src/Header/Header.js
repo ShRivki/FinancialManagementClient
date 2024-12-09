@@ -16,6 +16,9 @@ import Settings from '../Global/settings';
 import DateCalculation from '../Global/dateCalculation'
 import HistoryRecordList from '../Global/historyRecordList'
 import { logOut } from '../Services/userService';
+import { useCurrencyRates } from '../Global/currencyRates';
+import {convertToILS} from '../constants'
+import BackupButton from '../Global/backupButton'
 const ROUTES = {
     HOME: '/Home',
     USER_LIST: '/UserList',
@@ -40,6 +43,7 @@ const Header = () => {
         settingsDialogOpen: false,
         dateCalculationDialogOpen: false
     });
+    const currencyRates = useCurrencyRates();
     const [anchorElLoan, setAnchorElLoan] = useState(null);
     const [anchorElDeposit, setAnchorElDeposit] = useState(null);
     const [anchorElDonation, setAnchorElDonation] = useState(null);
@@ -61,14 +65,14 @@ const Header = () => {
         setAnchorFn(null);
     };
     const handleLogout = () => {
-       dispatch(logOut(),navigate)
+       dispatch(logOut(navigate))
         // navigate(ROUTES.LOG_IN);
     };
     const calculateDebt = (user) => {
         if (!user.loans || user.loans.length === 0) {
             return 0;
         }
-        return user.loans.reduce((totalDebt, loan) => totalDebt + loan.remainingAmount, 0);
+        return user.loans.reduce((totalDebt, loan) => totalDebt + convertToILS(loan.remainingAmount,loan.currency,currencyRates), 0);
     };
 
     // להכפיל במטח
@@ -76,7 +80,7 @@ const Header = () => {
         if (!user.deposits || user.deposits.length === 0) {
             return 0;
         }
-        return user.deposits.reduce((totalBalance, deposit) => totalBalance + (deposit.amount - deposit.amountRefunded), 0);
+        return user.deposits.reduce((totalBalance, deposit) => totalBalance + convertToILS(deposit.amount - deposit.amountRefunded,deposit.currency,currencyRates), 0);
     };
 
 
@@ -146,7 +150,7 @@ const Header = () => {
                             </Menu>
                         </Grid>
                         {renderOutlinedButton(() => navigate(ROUTES.USER_LIST), 'משתמשים')}
-                        {renderOutlinedButton(() => navigate(ROUTES.URRENT_PENDING_ITEMS), 'פעולות עכשיו')}
+                        {renderOutlinedButton(() => navigate(ROUTES.URRENT_PENDING_ITEMS), 'פעולות לביצוע')}
                         {renderOutlinedButton(() => handleDialogToggle('userDialogOpen'), 'הוספת משתמש')}
                         <Grid item>
                             <Button variant="outlined" onClick={handleMenuClick(setAnchorEl)}>
@@ -191,6 +195,7 @@ const Header = () => {
                             </Menu>
                         </Grid>
                         <HistoryRecordList />
+                        <BackupButton/>
                     </>)}
                 </Grid>
 

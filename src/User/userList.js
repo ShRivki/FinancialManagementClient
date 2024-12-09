@@ -49,23 +49,6 @@ const UserList = () => {
     dispatch(getUsers());
 
   }, []);
-  // להכפיל במטח
-  const calculateDebt = (user) => {
-    if (!user.loans || user.loans.length === 0) {
-      return 0;
-    }
-    return user.loans.reduce((totalDebt, loan) => totalDebt + loan.remainingAmount, 0);
-  };
-
-  // להכפיל במטח
-  const calculateBalance = (user) => {
-    if (!user.deposits || user.deposits.length === 0) {
-      return 0;
-    }
-    return user.deposits.reduce((totalBalance, deposit) => totalBalance + (deposit.amount - deposit.amountRefunded), 0);
-  };
-
-
   const highlightText = (text) => {
     if (typeof text !== 'string') return text;
     const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));

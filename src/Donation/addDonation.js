@@ -12,7 +12,7 @@ const schema = yup.object({
     amount: yup.number().required('סכום נדרש').positive('הסכום חייב להיות חיובי').typeError('הסכום חייב להיות מספר'),
     currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2, 3], 'מטבע לא חוקי'),
     fundraiser: yup.number().required('קמפיין נדרש').oneOf([0, 1, 2, 3], 'קמפיין לא חוקי').default(3),
-    notes: yup.string().max(255, 'הערות לא יכולות לעלות על 255 תווים').default("גג"), 
+    notes: yup.string().max(255, 'הערות לא יכולות לעלות על 255 תווים').default("גג"),
 }).required();
 
 const AddDonation = ({ open, handleClose, initialValues = {} }) => {
@@ -65,14 +65,12 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
                     <DialogContent>
                         <Autocomplete
                             options={users}
-                            getOptionLabel={(option) => `${option.firstName} ${option.lastName} ${option.identity}`}
-                            onChange={(event, newValue) => {
-                                setSelectedDonor(newValue?.id || "");
-                            }}
+                            getOptionLabel={({ firstName, lastName, identity }) => `${firstName} ${lastName} ${identity}`}
+                            onChange={(e, v) => setSelectedDonor(v?.id || "")}
+                            value={users.find(u => u.id === selectedDonor)}
                             renderInput={(params) => (
                                 <TextField {...params} label="תורם" variant="outlined" fullWidth error={!!errors.donorId} helperText={errors.donorId?.message} sx={{ mb: 2 }} />
                             )}
-                            value={users.find(user => user.id === selectedDonor)}
                         />
                         <Button onClick={handleOpenDonationDialog} variant="text" sx={{ mb: 2 }}>
                             הוסף משתמש חדש

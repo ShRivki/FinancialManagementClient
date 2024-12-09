@@ -1,7 +1,6 @@
 import * as actiontype from '../Store/actions';
 import axios from "axios";
-import {currencyOptionsValue} from '../constants'
-import { BASIC_URL } from '../constants';
+import { currencyOptionsValue,formatCurrency,BASIC_URL } from '../constants'
 
 const URL = `${BASIC_URL}/Deposit`;
 
@@ -39,7 +38,7 @@ export const addDeposit = (data) => {
     return async dispatch => {
         dispatch({ type: actiontype.LOADING_START }); // התחלת טעינה
         try {
-            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף הפקדה על סך ${data.amount} ${currencyOptionsValue[data.currency]}?`);
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף הפקדה על סך ${formatCurrency(data.amount)} ${currencyOptionsValue[data.currency]}?`);
             if (!userConfirmation) {
                 // אם המשתמש לוחץ על ביטול - סיום הפעולה
                 return;
@@ -77,7 +76,7 @@ export const repaymentDeposit = (id, repaymentAmount) => {
     return async dispatch => {
         dispatch({ type: actiontype.LOADING_START });
         try {
-            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להחזיר ${repaymentAmount} ?`);
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להחזיר ${formatCurrency(repaymentAmount)} ?`);
             if (!userConfirmation) {
                 return;
             }

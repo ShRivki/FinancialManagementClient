@@ -6,7 +6,6 @@ const initialState = {
 const usersReducer = (state = initialState, action) => {
     switch (action.type) {
         case actiontype.LOG_IN: {
-            alert("m")
             return { ...state, token: true };
         }
         case actiontype.LOG_OUT: {
