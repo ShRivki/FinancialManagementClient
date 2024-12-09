@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch, useSelector } from 'react-redux';
-import { TextField, Button, MenuItem, Select, InputLabel, FormControl, Dialog, DialogActions, DialogContent, DialogTitle, Checkbox, ListItemText, Box } from '@mui/material';
+import { TextField, Button, MenuItem, Select, InputLabel, Autocomplete,FormControl, Dialog, DialogActions, DialogContent, DialogTitle, Checkbox, ListItemText, Box } from '@mui/material';
 import { addDeposit } from '../Services/depositService';
 import UserAddEdit from '../User/userAddEdit';
 import { currencyOptions } from '../constants.js';
@@ -23,6 +23,7 @@ const AddDeposit = ({ open, handleClose, initialValues = {} }) => {
     const [depositDialogOpen, setDepositDialogOpen] = React.useState(false);
     const [selectedPayments, setSelectedPayments] = useState([]);
 
+    const [selectedDepositor, setSelectedDepositor] = useState(initialValues.depositorId || "");
     const { register, handleSubmit, setValue, watch, formState: { errors, isValid } } = useForm({
         resolver: yupResolver(schema),
         defaultValues: initialValues,
@@ -33,6 +34,9 @@ const AddDeposit = ({ open, handleClose, initialValues = {} }) => {
         const { value } = event.target;
         setSelectedPayments(typeof value === 'string' ? value.split(',') : value);
     };
+    useEffect(() => {
+        setValue("depositorId", selectedDepositor);
+    }, [selectedDepositor, setValue]);
 
     const onSubmit = (data) => {
         const formattedDateOfMaturity = new Date(data.dateOfMaturity).toISOString();
@@ -73,7 +77,16 @@ const AddDeposit = ({ open, handleClose, initialValues = {} }) => {
                 <DialogTitle>הוספת הפקדה</DialogTitle>
                 <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 600, margin: '0 auto' }}>
                     <DialogContent>
-                        {renderSelectField("מפקיד", "depositorId", users.map(user => ({ id: user.id, name: `${user.firstName} ${user.lastName} ${user.identity}` })))}
+                    <Autocomplete
+                            options={users}
+                            getOptionLabel={({ firstName, lastName, identity }) => `${firstName} ${lastName} ${identity}`}
+                            onChange={(e, v) => setSelectedDepositor(v?.id || "")}
+                            value={users.find(u => u.id === selectedDepositor)}
+                            renderInput={(params) => (
+                                <TextField {...params} label="מפקיד" variant="outlined" fullWidth error={!!errors.depositorId} helperText={errors.depositorId?.message} sx={{ mb: 2 }} />
+                            )}
+                        />
+                        {/* {renderSelectField("מפקיד", "depositorId", users.map(user => ({ id: user.id, name: `${user.firstName} ${user.lastName} ${user.identity}` })))} */}
                         <Button onClick={() => setDepositDialogOpen(true)} variant="text" sx={{ mb: 2 }}>
                             הוספת משתמש חדש
                         </Button>
