@@ -42,3 +42,32 @@ export const getHistoryRecords = () => {
         }
     };
 };
+
+export const Backup = async () => {
+    try {
+        const response = await axios.post(`${BASIC_URL}/GlobalVariables/backup`);
+        if (response.status >= 200 && response.status < 300) {
+            alert("גיבוי הושלם בהצלחה!");
+        } else {
+            alert("הגיבוי נכשל.");
+        }
+    } catch (error) {
+        console.error("שגיאה בעת ניסיון לגבות נתונים:", error);
+        alert("אירעה שגיאה במהלך ניסיון הגיבוי.");
+    }
+};
+// export const SendEmail = async () => {
+//       const response = await axios.post("https://localhost:7030/api/GlobalVariables/send-email", emailData);
+    
+//             if (response.status === 200) {
+//                 setMessage('ההודעה נשלחה בהצלחה!');
+//                 setMessageType('success');
+//             } else {
+//                 setMessage('שגיאה בשליחת ההודעה.');
+//                 setMessageType('error');
+//             }
+//         } catch (error) {
+//             const errorMessage = error.response?.data?.message || 'שגיאה במהלך השליחה.';
+//             setMessage(errorMessage);
+//             setMessageType('error');
+// };

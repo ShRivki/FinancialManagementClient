@@ -46,16 +46,13 @@ const EmailSender = () => {
             emailData.append('emailRequestJson', JSON.stringify(emailRequest));
     
             // הוסף את הקבצים ל-FormData רק אם יש קבצים
-            if (files.length > 0) {
-                files.forEach((file, index) => {
-                    console.log(file)
-                    emailData.append(`attachments[${index}]`, file);
-                });
-            }   
+            files.forEach((file) => {
+                emailData.append('attachments', file);
+            });            
             for (let [key, value] of emailData.entries()) {
                 console.log(key, value);
             }         
-    
+    console.log(emailData)
             const response = await axios.post("https://localhost:7030/api/GlobalVariables/send-email", emailData);
     
             if (response.status === 200) {

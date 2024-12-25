@@ -1,33 +1,21 @@
 import React from "react";
 import { Button } from "@mui/material";
-import BackupIcon from "@mui/icons-material/Backup"; // ייבוא של האייקון
-import { BASIC_URL } from "../constants";
+import BackupIcon from "@mui/icons-material/Backup";
+import {Backup} from '../Services/globalVariabelsService'
 
 const BackupButton = () => {
   const handleBackup = async () => {
-    try {
-      const response = await fetch(`${BASIC_URL}/GlobalVariables/backup`, {
-        method: "POST",
-      });
-      if (response.ok) {
-        alert("Backup completed successfully!");
-      } else {
-        alert("Failed to complete backup.");
-      }
-    } catch (error) {
-      console.error("Error during backup:", error);
-      alert("An error occurred.");
-    }
+   await Backup();
   };
 
   return (
     <div>
       <Button
-        variant="contained" // או "outlined" לפי הצורך
-        startIcon={<BackupIcon />} // הוספת האייקון בהתחלה של הכפתור
+        variant="contained" 
+        startIcon={<BackupIcon />} 
         onClick={handleBackup}
       >
-        Backup Database
+       -גיבוי נתונים-
       </Button>
     </div>
   );
