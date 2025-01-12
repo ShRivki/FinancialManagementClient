@@ -1,6 +1,6 @@
 import * as actiontype from './actions'
 const initialState = {
-    token:false,
+    token:!!localStorage.getItem('token'),
     users: []
 }
 const usersReducer = (state = initialState, action) => {

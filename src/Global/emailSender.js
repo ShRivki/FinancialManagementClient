@@ -5,18 +5,17 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import * as actiontype from '../Store/actions';
 import { useDispatch, useSelector } from 'react-redux';
-
+import { BASIC_URL } from '../constants';
 const EmailSender = () => {
     const dispatch = useDispatch();
     const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('');
-    const [sendToAll, setSendToAll] = useState(false); // מצב ל-send to all
+    const [sendToAll, setSendToAll] = useState(false);
     const users = useSelector(state => state.User.users);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [files, setFiles] = useState([]);
     
-    // אופציות של משתמשים כולל מידע נוסף עבור סינון והצגה
     const userOptions = users.map(user => ({
         label: `${user.firstName} ${user.lastName} - ${user.email}`,
         email: user.email,
@@ -36,11 +35,11 @@ const EmailSender = () => {
     const onSubmit = async (data) => {
         try {
             dispatch(actiontype.startLoading());
-    
+            const formattedBody = data.body.replace(/\n/g, '<br>');
             const emailData = new FormData();
             const emailRequest = {
                 subject: data.subject,
-                body: data.body,
+                body: formattedBody,
                 toEmails: sendToAll ? users.map(user => user.email) : [data.toEmail]
             };
             emailData.append('emailRequestJson', JSON.stringify(emailRequest));
@@ -53,7 +52,7 @@ const EmailSender = () => {
                 console.log(key, value);
             }         
     console.log(emailData)
-            const response = await axios.post("https://localhost:7030/api/GlobalVariables/send-email", emailData);
+            const response = await axios.post(`${BASIC_URL}/GlobalVariables/send-email`, emailData);
     
             if (response.status === 200) {
                 setMessage('ההודעה נשלחה בהצלחה!');
@@ -74,7 +73,7 @@ const EmailSender = () => {
     
     const handleCheckboxChange = (event) => {
         setSendToAll(event.target.checked);
-        setValue('toEmail', ''); // ריק את שדה המייל כשסימון וי
+        setValue('toEmail', ''); 
     };
 
     const handleFileChange = (event) => {
@@ -110,9 +109,9 @@ const EmailSender = () => {
                             }}
                             onChange={(event, selectedOption) => {
                                 if (selectedOption) {
-                                    setValue('toEmail', selectedOption.email); // מכניס רק את המייל
+                                    setValue('toEmail', selectedOption.email); 
                                 } else {
-                                    setValue('toEmail', ''); // אם לא נבחרה אפשרות
+                                    setValue('toEmail', ''); 
                                 }
                             }}
                             renderInput={(params) => (

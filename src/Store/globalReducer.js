@@ -81,6 +81,13 @@ const globalReducer = (state = initialState, action) => {
                 totalFundBalance: state.totalFundBalance + action.data.amount*amountInLocalCurrency,
                 activeLoans: state.activeLoans - action.data.amount*amountInLocalCurrency
             };
+            case actiontype.DELETE_LOAN:
+                const a = (action.data.currency === 0) ? 1 : state.currencyRates[action.data.currency];
+                return {
+                    ...state,
+                    totalFundBalance: state.totalFundBalance + action.data.remainingAmount*a,
+                    activeLoans: state.activeLoans - action.data.remainingAmount*a
+                };    
         default:
             return state;
     }

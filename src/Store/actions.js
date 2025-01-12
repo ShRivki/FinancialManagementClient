@@ -8,6 +8,7 @@ export const EDIT_USER = "EDIT_USER";
 
 export const ADD_LOAN="ADD_LOAN"
 export const REPAYMENT_LOAN="REPAYMENT_LOAN"
+export const DELETE_LOAN="DELETE_LOAN"
 export const GET_LOANS="GET_LOANS"
 export const EDIT_LOAN="EDIT_LOAN"
 export const GET_INACTIVE_LOANS="GET_INACTIVE_LOANS"

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Card, CardContent, Typography, Divider, Button, Grid, Avatar, TextField, IconButton } from '@mui/material';
 import { format } from 'date-fns';
-import { repaymentLoan } from '../Services/loanService.js';
+import { repaymentLoan ,removeLoan} from '../Services/loanService.js';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { currencyOptionsValue, paymentMethodsOptionsValue } from '../constants.js';
 import LoanRepaymentDateUpdate from './loanRepaymentDateUpdate.js';
 import { formatCurrency } from '../constants.js';
@@ -45,7 +46,13 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
             <CardContent>
                 <Grid container spacing={2} alignItems="center">
                     <Grid item><Avatar sx={{ bgcolor: '#003366' }}>{id}</Avatar></Grid>
-                    <Grid item xs><Typography variant="h6" component="div" gutterBottom sx={{ color: '#003366' }}>הלוואה של: <strong>{borrower.firstName}  {borrower.lastName}</strong></Typography></Grid>
+                    <Grid item xs><Typography variant="h6" component="div" gutterBottom sx={{ color: '#003366' }}>הלוואה של: <strong>{borrower.firstName}  {borrower.lastName}</strong>     <IconButton 
+      onClick={() =>   dispatch(removeLoan(id)) } 
+      sx={{ color: '#d32f2f', marginLeft: 1 }}
+      aria-label="delete"
+    >
+      <DeleteIcon />
+    </IconButton></Typography></Grid>
                 </Grid>
                 <Divider sx={{ my: 2, borderColor: '#003366' }} />
                 {renderTextSection('סכום הלוואה:', `${formatCurrency(amount - remainingAmount)} / ${formatCurrency(amount)} ${currencyOptionsValue[currency]}`, { fontWeight: 'bold', color: '#003366' })}

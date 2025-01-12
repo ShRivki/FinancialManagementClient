@@ -14,7 +14,11 @@ const loansReducer = (state = initialState, action) => {
             return { ...state, inactiveLoans: action.data };
         case actiontype.ADD_LOAN:
             return { ...state, loans: [...state.loans, action.data] };
-
+        case actiontype.DELETE_LOAN:
+            return {
+                ...state,
+                loans: state.loans.filter(loan => loan.id !== action.data.id)
+            };
         case actiontype.REPAYMENT_LOAN:
             const repaymentLoans = [...state.loans];
             const repaymentIndex = repaymentLoans.findIndex(x => x.id === action.data.id);

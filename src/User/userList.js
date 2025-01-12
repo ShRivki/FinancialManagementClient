@@ -72,19 +72,22 @@ const UserList = () => {
       </Box>
       <Box sx={{ mb: 2, textAlign: 'right' }}>
         <Tooltip title="ייצוא רשימת משתמשים ל" arrow>
-          <ExportButton
-            data={users.map(user => ({
-              'מזהה משתמש': user.identity,
-              'שם פרטי': user.firstName,
-              'שם משפחה': user.lastName,
-              'כתובת': user.address,
-              'טלפון 1': user.phone,
-              'טלפון 2': user.phone2 || '-',
-              'מייל': user.email,
-            }))}
-            fileName={`UsersList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
-          /> </Tooltip>
-        
+          <>
+            <ExportButton
+              data={users.map(user => ({
+                'מזהה משתמש': user.identity,
+                'שם פרטי': user.firstName,
+                'שם משפחה': user.lastName,
+                'כתובת': user.address,
+                'טלפון 1': user.phone,
+                'טלפון 2': user.phone2 || '-',
+                'מייל': user.email,
+              }))}
+              fileName={`UsersList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
+            />
+          </>
+        </Tooltip>
+
       </Box>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">

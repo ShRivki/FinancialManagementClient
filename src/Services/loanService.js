@@ -1,6 +1,6 @@
 import * as actiontype from '../Store/actions'
 import axios from "axios";
-import { currencyOptionsValue,formatCurrency,BASIC_URL } from '../constants'
+import { currencyOptionsValue, formatCurrency, BASIC_URL } from '../constants'
 import { getUserById } from './userService'
 const URL = `${BASIC_URL}/Loan`;
 export const getLoans = () => {
@@ -53,7 +53,7 @@ export const getInactiveLoans = () => {
 export const getInactiveLoansPerUser = (id) => async () => {
     try {
         const res = await axios.get(`${URL}/inactive?id=${id}`);
-        return  res.data;
+        return res.data;
     } catch (error) {
         console.error(error);
     }
@@ -69,39 +69,86 @@ export const getLoansByDate = async (untilDate) => {
     }
 };
 
+const checkBorrowerLoans = async (borrower) => {
+    if (borrower.loans && borrower.loans.length > 0) {
+        const loansDetails = borrower.loans.map(
+            loan => `הלוואה מספר ${loan.id} על סך יתרה לתשלום ${formatCurrency(loan.remainingAmount)} ${currencyOptionsValue[loan.currency]}`
+        ).join('\n');
+
+        return window.confirm(
+            `ללווה ${borrower.firstName} ${borrower.lastName} קיימות ההלוואות הבאות:\n${loansDetails}\n\nהאם להמשיך בהוספת הלוואה חדשה?`
+        );
+    }
+    return true; // אין הלוואות, ממשיך באופן אוטומטי
+};
+
+const checkBorrowerGuarantees = async (borrower) => {
+    if (borrower.guarantees && borrower.guarantees.length > 0) {
+        const guaranteesDetails = borrower.guarantees.map(
+            guarantee => `ערבות להלוואה מספר ${guarantee.loan.id} על סך ${formatCurrency(guarantee.loan.remainingAmount)} ${currencyOptionsValue[guarantee.loan.currency]}`
+        ).join('\n');
+
+        return window.confirm(
+            `ללווה ${borrower.firstName} ${borrower.lastName} קיימות הערבויות הבאות:\n${guaranteesDetails}\n\nהאם להמשיך בהוספת הלוואה חדשה?`
+        );
+    }
+    return true; // אין ערבויות, ממשיך באופן אוטומטי
+};
+
+const checkGuarantorDetails = async (guarantor) => {
+    if (guarantor.guarantees && guarantor.guarantees.length > 0) {
+        const guaranteesDetails = guarantor.guarantees.map(
+            guarantee => `ערבות להלוואה מספר ${guarantee.loan.id} על סך ${formatCurrency(guarantee.loan.remainingAmount)}`
+        ).join('\n');
+
+        const guaranteesConfirmation = window.confirm(
+            `לערב ${guarantor.firstName} ${guarantor.lastName} קיימות הערבויות הבאות:\n${guaranteesDetails}\n\nהאם להמשיך?`
+        );
+        if (!guaranteesConfirmation) return false;
+    }
+
+    if (guarantor.loans && guarantor.loans.length > 0) {
+        const loansDetails = guarantor.loans.map(
+            loan => `הלוואה מספר ${loan.id} על סך יתרה לתשלום ${formatCurrency(loan.remainingAmount)}`
+        ).join('\n');
+
+        const loansConfirmation = window.confirm(
+            `לערב ${guarantor.firstName} ${guarantor.lastName} קיימות ההלוואות הבאות:\n${loansDetails}\n\nהאם להמשיך?`
+        );
+        if (!loansConfirmation) return false;
+    }
+    return true; // אין ערבויות או הלוואות, ממשיך באופן אוטומטי
+};
+
+const checkAllGuarantors = async (guarantees) => {
+    for (const g of guarantees) {
+        const guarantor = await getUserById(g.guarantorId);
+        const result = await checkGuarantorDetails(guarantor);
+        if (!result) return false;
+    }
+    return true; // כל הערבים אושרו
+};
+
 export const addLoan = (data, navigate) => {
     return async dispatch => {
         try {
-            for (const g of data.guarantees) {
-                const user = await getUserById(g.guarantorId);
-                if (user.guarantees) {
-                    for (const guarantee of user.guarantees) {
-                        const userConfirmation = window.confirm(
-                            `ערב ${user.firstName} ${user.lastName}  ערב להלוואה מספר ${guarantee.loan.id} על סך ${formatCurrency(guarantee.loan.remainingAmount)} האם להמשיך?`
-                        );
-                        if (!userConfirmation) {
-                            return;
-                        }
-                    }
-                }
-                if (user.loans){
-                    for (const loan of user.loans) {
-                        const userConfirmation = window.confirm(
-                            `לערב ${user.firstName} ${user.lastName} קיימת הלוואה פעילה מספר ${loan.id} על סך ${formatCurrency(loan.remainingAmount)}  האם להמשיך?`
-                        );
-                        if (!userConfirmation) {
-                            return;
-                        }
-                    }
-                }
-            }
-            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוסיף הלוואה על סך ${formatCurrency(data.amount)} ${currencyOptionsValue[data.currency]}?`);
-            if (!userConfirmation) {
-                // אם המשתמש לוחץ על ביטול - סיום הפעולה
-                return;
-            }
-            console.log(data)
-            dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
+            const borrower = await getUserById(data.borrowerId);
+
+            const loansOk = await checkBorrowerLoans(borrower);
+            if (!loansOk) return;
+
+            const guaranteesOk = await checkBorrowerGuarantees(borrower);
+            if (!guaranteesOk) return;
+
+            const guarantorsOk = await checkAllGuarantors(data.guarantees);
+            if (!guarantorsOk) return;
+
+            const userConfirmation = window.confirm(
+                `האם אתה בטוח שברצונך להוסיף הלוואה על סך ${formatCurrency(data.amount)} ${currencyOptionsValue[data.currency]}?`
+            );
+            if (!userConfirmation) return;
+
+            dispatch(actiontype.startLoading());
             const res = await axios.post(URL, { ...data });
             dispatch({ type: actiontype.ADD_LOAN, data: res.data });
             alert('הוספה בוצעה בהצלחה');
@@ -109,10 +156,11 @@ export const addLoan = (data, navigate) => {
         } catch (error) {
             console.error(error);
         } finally {
-            dispatch(actiontype.endLoading()); // סיום מצב טעינה
+            dispatch(actiontype.endLoading());
         }
-    }
-}
+    };
+};
+
 
 export const repaymentLoan = (id, repaymentAmount) => {
     return async dispatch => {
@@ -129,6 +177,24 @@ export const repaymentLoan = (id, repaymentAmount) => {
             const res = await axios.delete(url);
             dispatch({ type: actiontype.REPAYMENT_LOAN, data: res.data });
             alert('חזר הלוואה  בוצעה בהצלחה');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            dispatch(actiontype.endLoading()); // סיום מצב טעינה
+        }
+    }
+}
+export const removeLoan = (id) => {
+    return async dispatch => {
+        try {
+            const userConfirmation = window.confirm(`האם אתה בטוח שברצונך לבצע מחיקת הלוואה לא תוכל לשחזר אחכ את הפרטים שנמחקו האם לבצע את הפעולה ?`);
+            if (!userConfirmation) {
+                return;
+            }
+            dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
+            const res = await axios.delete(`${URL}/Delete/${id}`);
+            dispatch({ type: actiontype.DELETE_LOAN, data: res.data });
+            alert('ההלוואה נמחקה בהצלחה');
         } catch (error) {
             console.error(error);
         } finally {

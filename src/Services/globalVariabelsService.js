@@ -26,6 +26,7 @@ export const subBalance = (operatingExpenses,currency) => {
             }
             await axios.put(`${URL}/${operatingExpenses}/${currency}`);
             dispatch({ type: actiontype.SUB_BALANCE, data: operatingExpenses,currency:currency });
+            alert("הפעולה בוצעה בהצלחה")
         } catch (error) {
             console.error(error);
         }
