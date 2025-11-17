@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { repaymentDeposit } from '../Services/depositService';
 import { useDispatch } from 'react-redux';
 import { currencyOptionsValue } from '../constants.js';
-import { paymentMethodsOptionsValue } from '../constants.js'
+import { paymentMethodsOptionsValue, moneyRecipientOptionsValue } from '../constants.js'
 import EditIcon from '@mui/icons-material/Edit';
 import { formatCurrency } from '../constants.js';
 import LoanRepaymentDateUpdate from '../Loan/loanRepaymentDateUpdate.js';
@@ -68,6 +68,7 @@ const DepositDetails = ({ deposit }) => {
                 {editDate && <LoanRepaymentDateUpdate deposit={deposit} />}
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל')}
                 {renderTextSection('שיטות תשלום:', getPaymentMethodsDisplay(paymentMethods))}
+                {renderTextSection('מי קיבל את הכסף:', deposit.moneyRecipient !== undefined ? moneyRecipientOptionsValue[deposit.moneyRecipient] : 'אין מידע')}
                 <Box sx={{ mt: 2 }}>
                     <TextField label="סכום להחזרה" type="number" value={repaymentAmount} onChange={(e) => setRepaymentAmount(e.target.value)} variant="outlined" fullWidth sx={{ maxWidth: 200 }} disabled={!status} />
                     <Button onClick={handleRepayment} variant="contained" sx={{ mt: 2, bgcolor: '#FF8C00', '&:hover': { bgcolor: '#FF7F50' } }} disabled={!status}>

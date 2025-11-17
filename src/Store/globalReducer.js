@@ -9,6 +9,8 @@ const initialState = {
     totalFundBalanceUSD: 0.0,
     totalFundBalanceGBP: 0.0,
     totalFundBalanceEUR: 0.0,
+    amountManagerA: 0.0,
+    amountManagerB: 0.0,
     currencyRates: {
         usdRate: 1.0,
         eurRate: 1.0,
@@ -49,8 +51,8 @@ const globalReducer = (state = initialState, action) => {
                 currencyRates: action.data // עדכון שערי המטבע
             };
         case actiontype.GET_GLOBAL_VARIABELS: {
-            const { totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR } = action.data[0];
-            return { ...state, totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR };
+            const { totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR, amountManagerA, amountManagerB } = action.data[0];
+            return { ...state, totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR, amountManagerA, amountManagerB };
         }
         case actiontype.GET_HISTORY_RECORDS: {
             return { ...state, historyRecords: action.data };

@@ -6,6 +6,7 @@ import DepositDetails from './depositDetails';
 import SortFilter from '../User/sortFilter'; 
 import { Typography, Box, Divider, FormControlLabel, Checkbox } from '@mui/material';
 import ExportButton from '../exportButton';
+import { moneyRecipientOptionsValue } from '../constants.js';
 const DepositsList = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
@@ -77,14 +78,15 @@ const DepositsList = () => {
         {(sortedDeposits) => (
           <>
             <ExportButton
-              data={sortedDeposits.map(donation => ({
-                'Name': donation.depositor.firstName + ' ' + donation.depositor.lastName,
-                'ID': donation.depositor.identity,
-                'Amount': donation.amount,
-                'Currency': donation.currency, // הוספת משתנה מטבע
-                'Fundraiser Type': donation.fundraiserType || 'N/A', // הצגת סוג המגייס במקום התאריך
-                'Notes': donation.notes,
-                'Status': donation.status ? 'Active' : 'Inactive',
+              data={sortedDeposits.map(deposit => ({
+                'Name': deposit.depositor.firstName + ' ' + deposit.depositor.lastName,
+                'ID': deposit.depositor.identity,
+                'Amount': deposit.amount,
+                'Currency': deposit.currency,
+                'Fundraiser Type': deposit.fundraiserType || 'N/A',
+                'Notes': deposit.notes,
+                'Status': deposit.status ? 'Active' : 'Inactive',
+                'מי קיבל את הכסף': deposit.moneyRecipient !== undefined ? moneyRecipientOptionsValue[deposit.moneyRecipient] : 'אין מידע',
               }))}
               fileName={`DonationsList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
             />

@@ -6,6 +6,7 @@ import LoanDetails from './loanDetails';
 import SortFilter from '../User/sortFilter';
 import { Typography, Box, Divider, Checkbox, FormControlLabel } from '@mui/material';
 import ExportButton from '../exportButton';
+import { moneyRecipientOptionsValue } from '../constants.js';
 
 const LoansList = () => {
   const { state } = useLocation();
@@ -111,6 +112,7 @@ const LoansList = () => {
                 'תשלום נוכחי': loan.currentPayment,
                 'כמות תשלומים': loan.totalPayments,
                 'סטטוס': loan.status ? 'פעיל' : 'לא פעיל',
+                'מי הוציא את הכסף': loan.moneyRecipient !== undefined ? moneyRecipientOptionsValue[loan.moneyRecipient] : 'אין מידע',
               }))}
               fileName={`LoansList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
             />

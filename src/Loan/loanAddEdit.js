@@ -11,7 +11,88 @@ import UserAddEdit from '../User/userAddEdit';
 import WarningIcon from '@mui/icons-material/Warning';
 import { currencyOptions } from '../constants.js'
 import { paymentMethodsOptions } from '../constants.js'
+import { moneyRecipientOptions } from '../constants.js'
+import { Controller } from "react-hook-form";
 
+const renderGuarantorAutocompleteField = ({ label, name, control, users, disabledIds = [] }) => (
+    <Controller
+        control={control}
+        name={name}
+        render={({ field, fieldState }) => (
+            <Autocomplete
+                options={users.filter(user => !disabledIds.includes(user.id))}
+                getOptionLabel={(option) =>
+                    option?.firstName && option?.lastName && option?.identity
+                        ? `${option.firstName} ${option.lastName} ${option.identity}`
+                        : ""
+                }
+                value={users.find(user => user.id === field.value) || null}
+                onChange={(e, newValue) => field.onChange(newValue ? newValue.id : null)}
+                isOptionEqualToValue={(option, value) => option.id === value?.id}
+                renderOption={(props, option) => (
+                    <li {...props} key={option.id}>
+                        {option.firstName} {option.lastName} {option.identity}
+                        {!option.isReliable && (
+                            <Tooltip title="משתמש לא אמין">
+                                <WarningIcon color="warning" sx={{ ml: 1 }} />
+                            </Tooltip>
+                        )}
+                    </li>
+                )}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label={label}
+                        variant="outlined"
+                        fullWidth
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                    />
+                )}
+            />
+        )}
+    />
+);
+const renderDepositAutocompleteField = ({ label, name, control, users, balanceGuaranteeAmounts, disabledIds = [] }) => (
+    <Controller
+        control={control}
+        name={name}
+        render={({ field, fieldState }) => (
+            <Autocomplete
+                options={users.filter(user => !disabledIds.includes(user.id))}
+                getOptionLabel={(option) =>
+                    option?.firstName && option?.lastName
+                        ? `${option.firstName} ${option.lastName} (יתרה: ${balanceGuaranteeAmounts[option.id] ?? 0})`
+                        : ""
+                }
+                value={users.find(user => user.id === field.value) || null}
+                onChange={(e, newValue) => field.onChange(newValue ? newValue.id : null)}
+                isOptionEqualToValue={(option, value) => option.id === value?.id}
+                renderOption={(props, option) => (
+                    <li {...props} key={option.id}>
+                        {option.firstName} {option.lastName} (יתרה: {balanceGuaranteeAmounts[option.id] ?? 0})
+                        {!option.isReliable && (
+                            <Tooltip title="משתמש לא אמין">
+                                <WarningIcon color="warning" sx={{ ml: 1 }} />
+                            </Tooltip>
+                        )}
+                    </li>
+                )}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label={label}
+                        variant="outlined"
+                        fullWidth
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                        sx={{ minWidth: 550 }}
+                    />
+                )}
+            />
+        )}
+    />
+);
 
 const LoanAddEdit = () => {
     const location = useLocation();
@@ -21,6 +102,7 @@ const LoanAddEdit = () => {
         amount: yup.number("ערך מספרי").required("שדה חובה").min(1, 'סכום חייב להיות חיובי').typeError('סכום חייב להיות מספר תקין'),
         currency: yup.number().oneOf([0, 1, 2, 3], 'מטבע לא חוקי').transform((value) => (value === undefined || value === null ? 0 : value)).default(0),
         paymentMethods: yup.array().of(yup.number()).min(1, 'חייב לבחור לפחות שיטת תשלום אחת'),
+        moneyRecipient: yup.number().required("שדה חובה").oneOf([0, 1], 'אפשרות לא חוקית'),
         guarantees: yup.array().of(yup.object({ guarantorId: yup.number().required().min(1) })),
         depositGuarantee: yup.array().of(yup.object({ depositUserId: yup.number().required().min(1) })),
         frequency: yup.number("ערך מספרי").required("שדה חובה").min(1, 'סכום חייב להיות חיובי').typeError('סכום חייב להיות מספר תקין'),
@@ -32,7 +114,7 @@ const LoanAddEdit = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const users = useSelector(state => state.User.users);
-    // const [selectedBorrower, setSelectedBorrower] = useState(state?.borrower?.id|| "");
+    const [selectedBorrower, setSelectedBorrower] = useState(state?.borrower?.id || "");
     const [balanceGuaranteeAmounts, setbalanceGuaranteeAmounts] = useState({});
     const [addUser, setaddUser] = useState(false);
     const [guarantorsSelected, setGuarantorsSelected] = useState([]);
@@ -46,6 +128,7 @@ const LoanAddEdit = () => {
             borrowerId: state.borrower?.id ? parseInt(state.borrower.id, 10) : "",
             amount: state.amount || "",
             currency: state.currency != null ? parseInt(state.currency, 10) : null,
+            moneyRecipient: state.moneyRecipient != null ? parseInt(state.moneyRecipient, 10) : 0,
             frequency: state.frequency != null ? parseInt(state.frequency, 10) : "",
             totalPayments: state.totalPayments || "",
             repaymentDate: state.repaymentDate?.split('T')[0] || "",
@@ -80,6 +163,10 @@ const LoanAddEdit = () => {
         fetchAllGuaranteeAmounts();
     }, [users]);
 
+    useEffect(() => {
+        setValue("borrowerId", selectedBorrower);
+
+    }, [selectedBorrower, setValue]);
     useEffect(() => {
         const guarantorsId = watch('guarantees').map(x => +x.guarantorId);
         const depositGuaranteeId = watch('depositGuarantee').map(x => +x.depositUserId);
@@ -156,7 +243,16 @@ const LoanAddEdit = () => {
     return (
         <div>
             <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 600, margin: '0 auto' }}>
-                {renderSelectField("לווה", "borrowerId", users.map(user => ({ id: user.id, name: `${user.firstName} ${user.lastName} ${user.identity}`, isReliable: user.isReliable })))}
+                <Autocomplete
+                    options={users}
+                    getOptionLabel={({ firstName, lastName, identity }) => `${firstName} ${lastName} ${identity}`}
+                    onChange={(e, v) => setSelectedBorrower(v?.id || "")}
+                    value={users.find(u => u.id === selectedBorrower)}
+                    renderInput={(params) => (
+                        <TextField {...params} label="לווה" variant="outlined" fullWidth error={!!errors.donorId} helperText={errors.borrowerId?.message} sx={{ mb: 2 }} />
+                    )}
+                />
+                {/* {renderSelectField("לווה", "borrowerId", users.map(user => ({ id: user.id, name: `${user.firstName} ${user.lastName} ${user.identity}`, isReliable: user.isReliable })))} */}
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField label="סכום" variant="outlined" fullWidth type="number" {...register("amount")} sx={{ flex: 1 }} />
                     {errors.amount?.message && <p>{errors.amount?.message}</p>}
@@ -174,6 +270,8 @@ const LoanAddEdit = () => {
                     </Select>
                     {errors.paymentMethods?.message && <p>{errors.paymentMethods?.message}</p>}
                 </FormControl>
+                {renderSelectField("מי הוציא את הכסף", "moneyRecipient", moneyRecipientOptions)}
+                {errors.moneyRecipient?.message && <p>{errors.moneyRecipient?.message}</p>}
                 <TextField label="תדירות החזר בחודשים" variant="outlined" fullWidth type="number" {...register("frequency")} sx={{ mb: 2 }} />
                 {errors.frequency?.message && <p>{errors.frequency?.message}</p>}
                 <TextField label="מספר תשלומים" variant="outlined" fullWidth type="number" {...register("totalPayments")} sx={{ mb: 2 }} />
@@ -184,7 +282,17 @@ const LoanAddEdit = () => {
                 <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
                     {guaranteeFields.map((item, index) => (
                         <Box key={item.id} sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            {renderSelectField("ערב", `guarantees.${index}.guarantorId`, users.map(user => ({ id: user.id, name: `${user.firstName} ${user.lastName}`, isReliable: user.isReliable })))}
+                            {/* {renderSelectField("ערב", `guarantees.${index}.guarantorId`, users.map(user => ({ id: user.id, name: `${user.firstName} ${user.lastName}`, isReliable: user.isReliable })))} */}
+                            <Box sx={{ flex: 1 }}>
+                                {renderGuarantorAutocompleteField({
+                                    label: "ערב",
+                                    name: `guarantees.${index}.guarantorId`,
+                                    control,
+                                    users,
+                                    disabledIds: guarantorsSelected
+                                })}
+                            </Box>
+
                             <Button onClick={() => removeGuarantee(index)} color="error">הסר</Button>
                         </Box>
                     ))}
@@ -195,13 +303,35 @@ const LoanAddEdit = () => {
                 </Button>
                 <InputLabel>ערבים על הפקדות</InputLabel>
                 <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                    {depositGuaranteeFields.map((item, index) => (
+                    {/* {depositGuaranteeFields.map((item, index) => (
                         <Box key={item.id} sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             {renderSelectField("מפקיד", `depositGuarantee.${index}.depositUserId`, users.map(user => ({ id: user.id, name: `${user.firstName} ${user.lastName}  יתרה: ${balanceGuaranteeAmounts[user.id]}`, isReliable: user.isReliable })))}
                             <Button onClick={() => removeDepositGuarantee(index)} color="error">הסר</Button>
                         </Box>
-                    ))}
+                    ))} */}
+
+                    {depositGuaranteeFields.map((item, index) => {
+                        // כדי למנוע בחירה כפולה, נשבית משתמשים שכבר נבחרו חוץ מהנוכחי
+                        const currentDepositUserId = watch(`depositGuarantee.${index}.depositUserId`);
+                        const disabledIdsExceptCurrent = guarantorsSelected.filter(id => id !== currentDepositUserId);
+
+                        return (
+                            <Box key={item.id} sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                {renderDepositAutocompleteField({
+                                    label: "מפקיד",
+                                    name: `depositGuarantee.${index}.depositUserId`,
+                                    control,
+                                    users,
+                                    balanceGuaranteeAmounts,
+                                    disabledIds: disabledIdsExceptCurrent,
+
+                                })}
+                                <Button onClick={() => removeDepositGuarantee(index)} color="error">הסר</Button>
+                            </Box>
+                        );
+                    })}
                     <Button onClick={(e) => { e.preventDefault(); appendDepositGuarantee({}); }} variant="outlined" sx={{ mb: 2 }}>הוסף ערב</Button>
+
                 </FormControl>
                 <Button onClick={() => setaddUser(true)} variant="text" sx={{ mb: 2 }}>
                     הוסף ערב על הפקדה חדש

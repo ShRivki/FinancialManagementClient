@@ -12,6 +12,7 @@ import AddDonation from '../Donation/addDonation';
 import AddDeposit from '../Deposit/addDeposit';
 import EmailSender from '../Global/emailSender';
 import SubtractAmount from '../Global/subtractAmount';
+import TransferAmount from '../Global/transferAmount';
 import Settings from '../Global/settings';
 import DateCalculation from '../Global/dateCalculation'
 import HistoryRecordList from '../Global/historyRecordList'
@@ -40,6 +41,7 @@ const Header = () => {
         depositDialogOpen: false,
         sendEmailDialogOpen: false,
         withdrawAmountDialogOpen: false,
+        transferAmountDialogOpen: false,
         settingsDialogOpen: false,
         dateCalculationDialogOpen: false
     });
@@ -159,6 +161,7 @@ const Header = () => {
                             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose(setAnchorEl)}>
                                 <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('sendEmailDialogOpen'); }}>שליחת מייל</MenuItem>
                                 <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('withdrawAmountDialogOpen'); }}>הורדת סכום</MenuItem>
+                                <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('transferAmountDialogOpen'); }}>העברת סכום בין מנהלים</MenuItem>
                                 <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('dateCalculationDialogOpen'); }}>חישוב יתרה</MenuItem>
                                 <MenuItem onClick={() => { handleMenuClose(setAnchorEl)(); handleDialogToggle('settingsDialogOpen'); }}>הגדרות</MenuItem>
                                 <MenuItem onClick={() => {
@@ -204,6 +207,7 @@ const Header = () => {
                 {renderDialog('depositDialogOpen', 'הוספת הפקדה', AddDeposit)}
                 {renderDialog('sendEmailDialogOpen', 'שליחת מייל', EmailSender)}
                 {renderDialog('withdrawAmountDialogOpen', 'הורדת סכום', SubtractAmount)}
+                {renderDialog('transferAmountDialogOpen', 'העברת סכום בין מנהלים', TransferAmount)}
                 {renderDialog('settingsDialogOpen', 'הגדרות', Settings)}
                 {renderDialog('dateCalculationDialogOpen', 'חישוב יתרה לפי תאריך', DateCalculation)}
             </Box>

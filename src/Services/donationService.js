@@ -1,6 +1,7 @@
 import * as actiontype from '../Store/actions';
 import axios from "axios";
 import { BASIC_URL ,formatCurrency,currencyOptionsValue} from '../constants';
+import { getGlobalVariables } from './globalVariabelsService';
 const URL = `${BASIC_URL}/Donation`;
 
 export const getDonations = () => {
@@ -26,8 +27,10 @@ export const addDonation = (data) => {
             if (!userConfirmation) {
                 return;
             }
+            console.log(data);
             const res = await axios.post(URL, data);
             dispatch({ type: actiontype.ADD_DONATION, data: res.data });
+            await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
             alert("התרומה נוספה בהצלחה !!!");
         } catch (error) {
             console.error(error);

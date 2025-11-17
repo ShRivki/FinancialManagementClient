@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { currencyOptionsValue, paymentMethodsOptionsValue } from '../constants.js';
+import { currencyOptionsValue, paymentMethodsOptionsValue, moneyRecipientOptionsValue } from '../constants.js';
 import LoanRepaymentDateUpdate from './loanRepaymentDateUpdate.js';
 import { formatCurrency } from '../constants.js';
 const LoanDetails = ({ loan, isFromGuarantee }) => {
@@ -74,6 +74,7 @@ const LoanDetails = ({ loan, isFromGuarantee }) => {
                 {renderTextSection('תשלומים:', `${currentPayment}/${totalPayments}`, { color: '#2F4F4F' })}
                 {renderTextSection('סטטוס:', status ? 'פעיל' : 'לא פעיל', { color: status ? '#003366' : '#2F4F4F' })}
                 {renderTextSection('שיטות תשלום:', getPaymentMethodsDisplay(paymentMethods), { color: '#2F4F4F' })}
+                {renderTextSection('מי הוציא את הכסף:', loan.moneyRecipient !== undefined ? moneyRecipientOptionsValue[loan.moneyRecipient] : 'אין מידע', { color: '#2F4F4F' })}
 
 
                 <Box sx={{ mb: 2 }}>

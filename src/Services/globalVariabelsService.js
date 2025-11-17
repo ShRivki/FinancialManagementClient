@@ -4,6 +4,18 @@ import { BASIC_URL,currencyOptionsValue } from '../constants';
 
 const URL = `${BASIC_URL}/GlobalVariables`;
 
+export const sendReminders = async () => {
+    try {
+        const res = await axios.post(`${BASIC_URL}/Reminder/send-reminders`);
+        console.log('Reminders sent successfully:', res.data);
+        return res.data;
+    } catch (error) {
+        console.error('Failed to send reminders:', error);
+        throw error;
+    }
+}
+
+
 export const getGlobalVariables = () => {
     return async dispatch => {
         try {
@@ -16,7 +28,7 @@ export const getGlobalVariables = () => {
         }
     }
 }
-export const subBalance = (operatingExpenses,currency) => {
+export const subBalance = (operatingExpenses,currency,managerId) => {
     return async dispatch => {
         try {
             const userConfirmation = window.confirm(`האם אתה בטוח שברצונך להוריד סכום בסך ${operatingExpenses} ${currencyOptionsValue[currency]}?`);
@@ -24,8 +36,9 @@ export const subBalance = (operatingExpenses,currency) => {
                 // אם המשתמש לוחץ על ביטול - סיום הפעולה
                 return;
             }
-            await axios.put(`${URL}/${operatingExpenses}/${currency}`);
+            await axios.put(`${URL}/${operatingExpenses}/${currency}/${managerId}`);
             dispatch({ type: actiontype.SUB_BALANCE, data: operatingExpenses,currency:currency });
+            await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
             alert("הפעולה בוצעה בהצלחה")
         } catch (error) {
             console.error(error);
@@ -33,6 +46,29 @@ export const subBalance = (operatingExpenses,currency) => {
     }
 
 }
+export const transferBetweenManagers = (amount, currency, fromManagerId, toManagerId) => {
+    return async dispatch => {
+        try {
+            const managerNames = {
+                0: 'אליהו שרייבר',
+                1: 'יעקב פרידמן'
+            };
+            const userConfirmation = window.confirm(
+                `האם אתה בטוח שברצונך להעביר סכום של ${amount} ${currencyOptionsValue[currency]} מ-${managerNames[fromManagerId]} ל-${managerNames[toManagerId]}?`
+            );
+            if (!userConfirmation) {
+                return;
+            }
+            await axios.put(`${URL}/transfer/${amount}/${currency}/${fromManagerId}/${toManagerId}`);
+            await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
+            alert("העברת הסכום בוצעה בהצלחה");
+        } catch (error) {
+            console.error(error);
+            alert(error.response?.data?.message || "אירעה שגיאה במהלך העברת הסכום");
+        }
+    }
+};
+
 export const getHistoryRecords = () => {
     return async dispatch => {
         try {

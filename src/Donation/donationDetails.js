@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Card, CardContent, Typography, Divider } from '@mui/material';
 import { grey } from '@mui/material/colors';
-import { currencyOptionsValue ,fundraiserOptionsValue} from '../constants.js'
+import { currencyOptionsValue ,fundraiserOptionsValue, moneyRecipientOptionsValue} from '../constants.js'
 
 
 
@@ -28,6 +28,7 @@ const DonationDetails = ({ donation }) => {
         <Divider sx={{ mb: 1, borderColor: '#003366' }} />
         {renderTextSection('סכום התרומה:', `${amount} ${currencyOptionsValue[currency]}`, true)}
         {renderTextSection('מתרים:', fundraiserOptionsValue[fundraiser], true)}
+        {renderTextSection('מי קיבל את הכסף:', donation.moneyRecipient !== undefined ? moneyRecipientOptionsValue[donation.moneyRecipient] : 'אין מידע', true)}
         {renderTextSection('הערות:', notes, false)}
       </CardContent>
     </Card>

@@ -7,11 +7,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addDonation } from '../Services/donationService';
 import UserAddEdit from '../User/userAddEdit'; // ייבוא רכיב הוספת משתמש
 import { currencyOptions, fundraiserOptions } from '../constants.js'
+import { moneyRecipientOptions } from '../constants.js'
 const schema = yup.object({
     donorId: yup.number().required('תורם נדרש').min(1, 'מזהה תורם חייב להיות מספר חיובי'),
     amount: yup.number().required('סכום נדרש').positive('הסכום חייב להיות חיובי').typeError('הסכום חייב להיות מספר'),
     currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2, 3], 'מטבע לא חוקי'),
     fundraiser: yup.number().required('קמפיין נדרש').oneOf([0, 1, 2, 3], 'קמפיין לא חוקי').default(3),
+    moneyRecipient: yup.number().required("שדה חובה").oneOf([0, 1], 'אפשרות לא חוקית'),
     notes: yup.string().max(255, 'הערות לא יכולות לעלות על 255 תווים').default("גג"),
 }).required();
 
@@ -19,7 +21,7 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
     const dispatch = useDispatch();
     const users = useSelector(state => state.User.users);
     const [userDialogOpen, setDonationDialogOpen] = useState(false); // מצב לניהול פתיחת רכיב הוספת משתמש
-    const { register, handleSubmit, setValue, formState: { errors, isValid } } = useForm({
+    const { register, handleSubmit, setValue, watch, formState: { errors, isValid } } = useForm({
         resolver: yupResolver(schema),
         defaultValues: initialValues,
         mode: 'onChange',
@@ -106,6 +108,17 @@ const AddDonation = ({ open, handleClose, initialValues = {} }) => {
                                 <TextField {...params} label="מתרים" variant="outlined" fullWidth error={!!errors.fundraiser} helperText={errors.fundraiser?.message} sx={{ mb: 2 }} />
                             )}
                             value={fundraiserOptions.find(option => option.value === selectedFundraiser)}
+                        />
+                        <Autocomplete
+                            options={moneyRecipientOptions}
+                            getOptionLabel={(option) => option.name}
+                            onChange={(event, newValue) => {
+                                setValue("moneyRecipient", newValue?.id || 0);
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} label="מי קיבל את הכסף" variant="outlined" fullWidth error={!!errors.moneyRecipient} helperText={errors.moneyRecipient?.message} sx={{ mb: 2 }} />
+                            )}
+                            value={moneyRecipientOptions.find(option => option.id === watch("moneyRecipient"))}
                         />
                         <TextField label="הערות" variant="outlined" fullWidth {...register("notes")} sx={{ mb: 2 }} />
                         <p>{errors.notes?.message}</p>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getGlobalVariables } from '../Services/globalVariabelsService';
 import { Box, Typography, CircularProgress, Grid } from '@mui/material';
+import { moneyRecipientOptionsValue } from '../constants';
 
 const formatNumber = (number) => {
     const fixedNumber = number.toFixed(2);
@@ -9,7 +10,7 @@ const formatNumber = (number) => {
 };
 
 const GlobalVariabel = () => {
-    const { totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR } = useSelector(state => state.GlobalVariables);
+    const { totalFundBalance, activeLoans, totalLoansGranted, totalFundBalanceILS, totalFundBalanceUSD, totalFundBalanceGBP, totalFundBalanceEUR, amountManagerA, amountManagerB } = useSelector(state => state.GlobalVariables);
     const dispatch = useDispatch();
 
     const [displayFundBalance, setDisplayFundBalance] = useState(0);
@@ -90,6 +91,27 @@ const GlobalVariabel = () => {
                         ) : (
                             <Typography variant="h5"> ש"ח {formatNumber(displayTotalLoansGranted)}</Typography>
                         )}
+                    </Box>
+                </Grid>
+            </Grid>
+            
+            {/* יתרות מנהלים */}
+            <Typography variant="h5" sx={{ mb: 2, color: '#004d40', textAlign: 'center', mt: 3 }}>יתרות מנהלים</Typography>
+            <Grid container spacing={2} justifyContent="center">
+                <Grid item xs={12} sm={6}>
+                    <Box sx={{ p: 2, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 1, textAlign: 'center' }}>
+                        <Typography variant="h6" sx={{ mb: 1, color: '#d32f2f' }}>יתרת {moneyRecipientOptionsValue[0]}</Typography>
+                        <Typography variant="h5" sx={{ color: '#d32f2f' }}>
+                            {amountManagerA || 0} ₪
+                        </Typography>
+                    </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <Box sx={{ p: 2, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 1, textAlign: 'center' }}>
+                        <Typography variant="h6" sx={{ mb: 1, color: '#1976d2' }}>יתרת {moneyRecipientOptionsValue[1]}</Typography>
+                        <Typography variant="h5" sx={{ color: '#1976d2' }}>
+                            {amountManagerB || 0} ₪
+                        </Typography>
                     </Box>
                 </Grid>
             </Grid>

@@ -1,6 +1,7 @@
 import * as actiontype from '../Store/actions';
 import axios from "axios";
 import { currencyOptionsValue,formatCurrency,BASIC_URL } from '../constants'
+import { getGlobalVariables } from './globalVariabelsService'
 
 const URL = `${BASIC_URL}/Deposit`;
 const selectFiles = async () => {
@@ -84,6 +85,7 @@ export const addDeposit = (data) => {
 
             const res = await axios.post(URL, formData);
             dispatch({ type: actiontype.ADD_DEPOSIT, data: res.data });
+            await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
             alert(`ההפקדה נוספה בהצלחה`);
         } catch (error) {
             console.error('שגיאה בהוספת ההפקדה:', error);
@@ -173,6 +175,7 @@ export const repaymentDeposit = (id, repaymentAmount) => {
 
             const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}`, { data: formData });
             dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data });
+            await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
             alert(`הוחזר ${repaymentAmount} בהצלחה`);
         } catch (error) {
             // אם השגיאה מכילה את ההודעה על כך שנדרש אישור מנהל
@@ -183,6 +186,7 @@ export const repaymentDeposit = (id, repaymentAmount) => {
                 if (managerApproval) {
                     const res = await axios.delete(`${URL}/${id}?repaymentAmount=${repaymentAmount}&managerApproval=true`, { data: formData });
                     dispatch({ type: actiontype.REPAYMENT_DEPOSIT, amount: repaymentAmount, data: res.data });
+                    await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
                     alert(`הוחזר ${repaymentAmount} בהצלחה`);
                 }
             } else {

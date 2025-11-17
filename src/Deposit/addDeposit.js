@@ -8,12 +8,14 @@ import { addDeposit } from '../Services/depositService';
 import UserAddEdit from '../User/userAddEdit';
 import { currencyOptions } from '../constants.js';
 import { paymentMethodsOptions } from '../constants.js'
+import { moneyRecipientOptions } from '../constants.js'
 const schema = yup.object({
     depositorId: yup.number().required('מפקיד נדרש').min(1, 'מפקיד חייב להיות מספר חיובי'),
     amount: yup.number().required('סכום נדרש').min(0, 'הסכום חייב להיות מספר שאינו שלילי'),
     currency: yup.number().required('מטבע נדרש').oneOf([0, 1, 2, 3], 'מטבע לא חוקי'),
     dateOfMaturity: yup.date().nullable().min(new Date(), 'תאריך התפוגה לא יכול להיות לפני התאריך הנוכחי').typeError('תאריך לא חוקי'),
     paymentMethods: yup.array().of(yup.number()).min(1, 'חייב לבחור לפחות שיטת תשלום אחת'),
+    moneyRecipient: yup.number().required("שדה חובה").oneOf([0, 1], 'אפשרות לא חוקית'),
     notes: yup.string().max(255, 'הערות לא יכולות לחרוג מ-255 תווים'),
 }).required();
 
@@ -26,7 +28,14 @@ const AddDeposit = ({ open, handleClose, initialValues = {} }) => {
     const [selectedDepositor, setSelectedDepositor] = useState(initialValues.depositorId || "");
     const { register, handleSubmit, setValue, watch, formState: { errors, isValid } } = useForm({
         resolver: yupResolver(schema),
-        defaultValues: initialValues,
+        defaultValues: {
+            depositorId: initialValues.depositorId || "",
+            amount: initialValues.amount || "",
+            currency: initialValues.currency || 0,
+            moneyRecipient: initialValues.moneyRecipient || 0,
+            dateOfMaturity: initialValues.dateOfMaturity || "",
+            notes: initialValues.notes || ""
+        },
         mode: 'onChange',
     });
 
@@ -118,6 +127,9 @@ const AddDeposit = ({ open, handleClose, initialValues = {} }) => {
                             </Select>
                             {errors.paymentMethods?.message && <p>{errors.paymentMethods?.message}</p>}
                         </FormControl>
+
+                        {renderSelectField("מי קיבל את הכסף", "moneyRecipient", moneyRecipientOptions)}
+                        {errors.moneyRecipient?.message && <p>{errors.moneyRecipient?.message}</p>}
 
                         <TextField label="הערות" variant="outlined" fullWidth {...register("notes")} sx={{ mb: 2 }} />
                         {errors.notes?.message && <p>{errors.notes?.message}</p>}

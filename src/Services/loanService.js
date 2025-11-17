@@ -2,6 +2,7 @@ import * as actiontype from '../Store/actions'
 import axios from "axios";
 import { currencyOptionsValue, formatCurrency, BASIC_URL } from '../constants'
 import { getUserById } from './userService'
+import { getGlobalVariables } from './globalVariabelsService'
 const URL = `${BASIC_URL}/Loan`;
 export const getLoans = () => {
     return async dispatch => {
@@ -151,6 +152,7 @@ export const addLoan = (data, navigate) => {
             dispatch(actiontype.startLoading());
             const res = await axios.post(URL, { ...data });
             dispatch({ type: actiontype.ADD_LOAN, data: res.data });
+            await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
             alert('הוספה בוצעה בהצלחה');
             navigate('/LoansList');
         } catch (error) {
@@ -176,6 +178,7 @@ export const repaymentLoan = (id, repaymentAmount) => {
 
             const res = await axios.delete(url);
             dispatch({ type: actiontype.REPAYMENT_LOAN, data: res.data });
+            await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
             alert('חזר הלוואה  בוצעה בהצלחה');
         } catch (error) {
             console.error(error);
@@ -194,6 +197,7 @@ export const removeLoan = (id) => {
             dispatch(actiontype.startLoading()); // מצב טעינה מתחיל
             const res = await axios.delete(`${URL}/Delete/${id}`);
             dispatch({ type: actiontype.DELETE_LOAN, data: res.data });
+            await dispatch(getGlobalVariables()); // עדכון סכומי המנהלים
             alert('ההלוואה נמחקה בהצלחה');
         } catch (error) {
             console.error(error);

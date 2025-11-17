@@ -35,6 +35,16 @@ export const paymentMethodsOptionsValue = {
     2: 'מזומן',
     4: 'העברה'
 }
+
+export const moneyRecipientOptions = [
+    { id: 0, name: 'אליהו שרייבר' },
+    { id: 1, name: 'יעקב פרידמן' }
+];
+
+export const moneyRecipientOptionsValue = {
+    0: 'אליהו שרייבר',
+    1: 'יעקב פרידמן'
+};
 export const formatCurrency = (amount) => {
     // אם הסכום שלם, הצג את הסכום עם פסיקים בלבד
     return amount % 1 === 0

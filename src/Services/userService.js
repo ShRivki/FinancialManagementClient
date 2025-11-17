@@ -25,6 +25,7 @@ export const logIn = (data, navigate) => {
       navigate('/Home');
       alert('התחברת בהצלחה');
     } catch (error) {
+      console.log(error)
       alert('שגיאה :(');
     }
   }

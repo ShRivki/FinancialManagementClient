@@ -9,6 +9,7 @@ import ExportButton from '../exportButton';
 import { currencyOptions } from '../constants';
 import { convertToILS } from '../constants';
 import { useCurrencyRates } from '../Global/currencyRates';
+import { moneyRecipientOptionsValue } from '../constants.js';
 
 const DonationsList = () => {
   const { state } = useLocation();
@@ -75,8 +76,9 @@ const DonationsList = () => {
                 'שם פרטי': donation.donor.firstName,
                 'שם משפחה': donation.donor.lastName,
                 'סכום': donation.amount,
-                'סוג': currencyOptions[donation.currency], // הוספת משתנה מטבע
+                'סוג': currencyOptions[donation.currency],
                 'מתרים': donation.fundraiserType || 'N/A',
+                'מי קיבל את הכסף': donation.moneyRecipient !== undefined ? moneyRecipientOptionsValue[donation.moneyRecipient] : 'אין מידע',
                 'הערות': donation.notes,
               }))}
               fileName={`DonationsList_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`}
